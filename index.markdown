@@ -5,7 +5,13 @@
 layout: default
 ---
 ## The Basics - Elixir
-- Introduction
+- Introduction to Elixir
+- Basic types
+- Collections
+- Functions and Modules
+- Structs
+- Protocols
+- Processes and Inter-Process Communication
 
 ## The Advanced Stuff - Elixir
 
