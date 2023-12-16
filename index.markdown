@@ -3,6 +3,7 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: default
+title: "Elixir By Example - Index"
 ---
 ## The Basics - Elixir
 - Introduction to Elixir
