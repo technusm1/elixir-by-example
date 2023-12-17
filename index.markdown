@@ -41,8 +41,8 @@ title: "Table of Contents"
 - Property-based testing
 - Code improvement with 3rd party tools/libraries
 
-## Ecto Framework
-
-## Phoenix Framework
+## More stuff to learn
+- Ecto Framework
+- Phoenix Framework
 
 ## Other Learning Resources
