@@ -6,7 +6,7 @@ layout: default
 title: "Table of Contents"
 ---
 ## The Basics
-- Introduction to Elixir
+- [Introduction to Elixir]({{ site.baseurl }}{% link _pages/introduction-to-elixir.md %})
 - Basic types, Functions and Operations
 - Collections
 - Organizing your code using modules
