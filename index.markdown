@@ -15,7 +15,6 @@ title: "Table of Contents"
 - Protocols
 - Processes and Inter-Process Communication
 - Error handling
-- Testing
 
 ## Standard Library features
 - Strings
@@ -27,22 +26,23 @@ title: "Table of Contents"
 - Agent
 - Supervisors
 
-## Elixir Tools In-Depth
-- IEx
-- Mix
-
 ## The Advanced Stuff - Elixir
+- Elixir tools in-depth: IEx, Mix
 - Erlang Term Storage (ETS)
 - Mnesia Database
 - Metaprogramming in Elixir
+- Distributed applications
 
-## Other stuff that's good to know
+## Checking your code
+- Testing
 - Benchmarking
+- Profiling
 - Telemetry
 - Property-based testing
+- Code improvement with 3rd party tools/libraries
 
-## Working with a Database - Ecto Framework
+## Ecto Framework
 
-## Creating a web server - Phoenix Framework
+## Phoenix Framework
 
-## Other Resources
+## Other Learning Resources
