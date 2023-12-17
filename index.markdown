@@ -5,7 +5,7 @@
 layout: default
 title: "Table of Contents"
 ---
-## The Basics - Elixir
+## The Basics
 - Introduction to Elixir
 - Basic types, Functions and Operations
 - Collections
@@ -26,7 +26,7 @@ title: "Table of Contents"
 - Agent
 - Supervisors
 
-## The Advanced Stuff - Elixir
+## The Advanced Stuff
 - Elixir tools in-depth: IEx, Mix
 - Erlang Term Storage (ETS)
 - Mnesia Database
