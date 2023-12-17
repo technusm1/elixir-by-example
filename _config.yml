@@ -22,8 +22,6 @@ title: Elixir By Example
 email: me@maheepk.net
 description: >- # this means to ignore newlines until "baseurl:"
   Learn Elixir (and related stuff) rapidly through simple examples.
-  No prior programming experience required, but prior knowledge is
-  always good to have.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: technusm1
