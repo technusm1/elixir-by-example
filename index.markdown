@@ -7,14 +7,18 @@ title: "Table of Contents"
 ---
 ## The Basics
 - [Introduction to Elixir]({{ site.baseurl }}{% link _pages/introduction-to-elixir.md %})
-- Basic types, Functions and Operations
+- IEx and Mix Introduction
+- Basic types and Control Structures
+- Basic Operators
+- Functions, Guards and Sigils
+- Pipe Operator
 - Collections
-- Organizing your code using modules
-- Basics of Elixir tools
+- Modules
 - Structs
+- Behaviours
 - Protocols
 - Processes and Inter-Process Communication
-- Error handling
+- Error Handling
 
 ## Standard Library features
 - Strings
@@ -44,5 +48,8 @@ title: "Table of Contents"
 ## More stuff to learn
 - Ecto Framework
 - Phoenix Framework
+- GenStage
+- Flow
+- Broadway
 
 ## Other Learning Resources
