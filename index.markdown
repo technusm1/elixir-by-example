@@ -10,6 +10,7 @@ title: "Table of Contents"
 - Basic types, Functions and Operations
 - Collections
 - Organizing your code using modules
+- Basics of Elixir tools
 - Structs
 - Protocols
 - Processes and Inter-Process Communication
@@ -17,10 +18,18 @@ title: "Table of Contents"
 - Testing
 
 ## Standard Library features
+- Strings
 - Stream and Enum modules
+- File I/O
+- Date and Time
 - GenServer
 - Task
 - Agent
+- Supervisors
+
+## Elixir Tools In-Depth
+- IEx
+- Mix
 
 ## The Advanced Stuff - Elixir
 - Erlang Term Storage (ETS)
