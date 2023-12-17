@@ -46,7 +46,7 @@ title: "Table of Contents"
 - Code improvement with 3rd party tools/libraries
 
 ## More stuff to learn
-- Ecto Framework
+- SQL and Ecto Framework
 - Phoenix Framework
 - GenStage
 - Flow
