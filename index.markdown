@@ -22,7 +22,7 @@ title: "Table of Contents"
 
 ## Standard Library features
 - Strings
-- Stream and Enum modules
+- [Stream and Enum modules]({{ site.baseurl }}{% link _pages/stream-and-enum-modules.md %})
 - File I/O
 - Date and Time
 - GenServer
