@@ -14,6 +14,12 @@ Elixir provides `Stream` and `Enum` modules out of the box for working with coll
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ```
 
+Functions that need to enumerate the entire collection will definitely be in `Enum`` module only. Such functions include, but are not limited to:
+- `all?`, `any?`, `empty?`
+- `random`
+- `count`, `sum`, `product`, `min`, `max`
+- `reverse`, `sort`
+
 ```elixir
 # Check if all numbers are greater than 0 (returns true)
 numbers |> Enum.all?(fn number -> number > 0 end)
@@ -23,5 +29,3 @@ numbers |> Enum.all?(&(&1 > 0))
 # Check if all numbers are multiples of 2 (returns false)
 numbers |> Enum.all?(&(rem(&1, 2) == 0))
 ```
-
-What will you do to check if any one of the numbers is a multiple of 2?
