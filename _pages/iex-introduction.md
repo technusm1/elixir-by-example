@@ -1,11 +1,9 @@
 ---
-title: "Introduction to IEx and Mix"
+title: "Introduction to IEx"
 ---
 
 {% contentfor sidebar %}
 `iex`, short for `Interactive Elixir` is the Elixir shell. It allows you to execute your elixir code line-by-line.
-
-`mix` is a tool for managing your dependencies and your Elixir projects. As programmers, we carefully **mix** different stuff (i.e. dependencies) to produce amazing **elixirs** (i.e. projects). A good analogy to remember.
 {% endcontentfor %}
 
 ## IEx introduction
