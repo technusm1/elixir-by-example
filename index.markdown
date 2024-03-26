@@ -41,6 +41,7 @@ title: "Table of Contents"
 - [Mnesia Database]({{ site.baseurl }}{% link _pages/mnesia.md %})
 - [Metaprogramming in Elixir]({{ site.baseurl }}{% link _pages/metaprogramming.md %})
 - [Distributed applications]({{ site.baseurl }}{% link _pages/distributed-applications.md %})
+- [Integrating other languages into Elixir]({{ site.baseurl }}{% link _pages/integrating-other-languages.md %})
 
 ## Checking your code
 
