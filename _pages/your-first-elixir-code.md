@@ -16,7 +16,13 @@ IO.puts("Hello, world!")
 
 Save the file as `hello_world.exs`.
 
-To run the program, type `elixir hello_world.exs` in the terminal / command prompt. The file type `.exs` indicates that it's an Elixir script, to be run line-by-line by `elixir` interpreter.
+To run the program, type the following command in your terminal / command prompt:
+
+```sh
+elixir hello_world.exs
+```
+
+The file type `.exs` indicates that it's an Elixir script, to be run line-by-line by `elixir` interpreter.
 
 You should see the text `Hello, world!` printed on screen.
 
