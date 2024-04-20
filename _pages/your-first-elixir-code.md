@@ -18,7 +18,7 @@ Save the file as `hello_world.exs`.
 
 To run the program, type the following command in your terminal / command prompt:
 
-```sh
+```shell
 elixir hello_world.exs
 ```
 
