@@ -14,19 +14,19 @@ title: "Introduction to IEx"
 - **History**: You can use the up and down arrow keys to browse through the history of commands.
 - **Expressions**: You can type an expression and hit enter to evaluate it and get its result.
 
-`iex` also provides some helper functions that make it easier to work with. We can type `h` and press enter to get a list of all the helper functions. Let's explore a few of them:
+`iex` also provides some helper functions to make our lives easier. Just type `h` and press enter to get a list of all the helper functions. Here's a few of them:
 
 - **Standard shell-like functions**: These include functions like `cd`, `clear`, `ls`, `pwd`, etc. If you've ever used a unix-like shell, you know what they do.
-- Code compilation / information related functions:
-  - `c` (compile)
-  - `h` (help)
-  - `i` (info about last value or given term)
+- **Code compilation / information related functions**:
+  - `c` (**compile**)
+  - `h` (**help**)
+  - `i` (**info** about last value or given term)
   - `recompile` (the entire project) / `r` (to recompile a single module)
-  - `t` (print types for a given module or function)
+  - `t` (print **types** for a given module or function)
   - `runtime_info` (get info about the current system and runtime)
-  - `v` (return the value of the nth expression in history, or the last expression by default. Can be negative)
+  - `v` (return the **value** of the nth expression in history, or the last expression by default. Can be negative)
 
-> 🔥 **WARNING FROM THE DOCUMENTATION**: Please be aware that the code is truly evaluated line-by-line in `iex` and not compiled. This means that any benchmarking done in the shell is going to have skewed results, since compilers can optimize the code they're building, but a code executing line-by-line isn't optimized by `iex`. So it is recommended not to run any profiling or any benchmarks in the shell.
+> 🔥 ***WARNING***: Code is evaluated line-by-line in `iex` and not compiled. This means that any benchmarking done in the shell is going to have skewed results, since compilers can optimize the code they're building, but an interpreter like `iex` can't do the same. **TL;DR**: don't run any profiling or benchmarks in the shell, the results won't show the true picture.
 
 ## Examples
 
