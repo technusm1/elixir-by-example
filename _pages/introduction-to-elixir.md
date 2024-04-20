@@ -10,12 +10,12 @@ Here's Elixir compared against some well-known languages like Go and Java. Pleas
 | **Feature**                | **Elixir**                               | **Go**                                | **Java**                              |
 |----------------------------|------------------------------------------|---------------------------------------|---------------------------------------|
 | **Paradigm**               | Functional, emphasis on immutability     | Statically-typed, concurrent model    | Object-oriented, emphasis on portability|
-| **Concurrency Model**      | Actor-based, lightweight processes       | Goroutines, channels (CSP)            | Threads, java.util.concurrent package  |
+| **Concurrency Model**      | Actor-based, lightweight processes       | Goroutines, channels (CSP - Communicating Serial Processes)            | Threads, java.util.concurrent package  |
 | **Ecosystem**              | Built on Erlang ecosystem                | Growing ecosystem, strong in concurrency| Mature and extensive ecosystem        |
 | **Performance**            | Good concurrency and scalability         | Efficient, used for high performance  | Generally performs well, JVM features |
 | **Syntax & Readability**   | Clean, expressive, pattern matching      | Simple and readable                   | Readable, some verbosity               |
 | **Community & Adoption**   | Smaller but passionate community         | Large and active community            | Massive community, widespread adoption|
-| **Use Cases**              | Distributed, fault-tolerant systems       | Systems programming, scalability     | Enterprise applications, web development|
+| **Use Cases**              | Distributed, fault-tolerant systems       | Highly concurrent systems     | Enterprise applications, web development|
 
 ## Some simple examples in Elixir
 Here's a simple example in Elixir demonstrating a module for basic mathematical operations:

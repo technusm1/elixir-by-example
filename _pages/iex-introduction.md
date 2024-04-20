@@ -8,16 +8,16 @@ title: "Introduction to IEx"
 
 ## IEx introduction
 
-`iex` allows us to type our code line-by-line, and generates the output for it line-by-line. Typing `iex` in your terminal / command prompt will open an interactive elixir shell. Here are some of its features:
+`iex` allows us to type our code line-by-line, and executes it one line at a time. Typing `iex` in your terminal / command prompt will open an interactive elixir shell. Here are some of its features:
 
-- Autocomplete: To discover what functions and modules are available, type anything and press tab to get a list of suggestions.
-- History: You can use the up and down arrow keys to browse through the history of commands.
-- Expressions: You can type an expression and hit enter to get the result.
+- **Autocomplete**: To discover what functions and modules are available, type anything and press tab to get a list of suggestions.
+- **History**: You can use the up and down arrow keys to browse through the history of commands.
+- **Expressions**: You can type an expression and hit enter to evaluate it and get its result.
 
-`iex` also has a bunch of helper functions that make it easier to work with the IEx shell. We can type `h` and press enter to get a list of all the helper functions. Let's explore a few of them:
+`iex` also provides some helper functions that make it easier to work with. We can type `h` and press enter to get a list of all the helper functions. Let's explore a few of them:
 
-- Standard shell-like functions: These include functions like `cd`, `clear`, `ls`, `pwd`, etc.
-- Code compilation/information related functions:
+- **Standard shell-like functions**: These include functions like `cd`, `clear`, `ls`, `pwd`, etc. If you've ever used a unix-like shell, you know what they do.
+- Code compilation / information related functions:
   - `c` (compile)
   - `h` (help)
   - `i` (info about last value or given term)
@@ -26,7 +26,7 @@ title: "Introduction to IEx"
   - `runtime_info` (get info about the current system and runtime)
   - `v` (return the value of the nth expression in history, or the last expression by default. Can be negative)
 
-> 🔥 **WARNING FROM THE DOCUMENTATION**: Please be aware that the code is truly evaluated in `iex` and not compiled. This means that any benchmarking done in the shell is going to have skewed results. So never run any profiling nor benchmarks in the shell.
+> 🔥 **WARNING FROM THE DOCUMENTATION**: Please be aware that the code is truly evaluated line-by-line in `iex` and not compiled. This means that any benchmarking done in the shell is going to have skewed results, since compilers can optimize the code they're building, but a code executing line-by-line isn't optimized by `iex`. So it is recommended not to run any profiling or any benchmarks in the shell.
 
 ## Examples
 
