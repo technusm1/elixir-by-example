@@ -5,7 +5,7 @@ title: "Introduction to Elixir"
 [Elixir](https://elixir-lang.org/) is a functional and concurrent programming language designed for building scalable and maintainable applications. It runs on the Erlang Virtual Machine (BEAM) and leverages Erlang's concurrency model, fault tolerance, and distributed computing capabilities.
 {% endcontentfor %}
 ## Key Features
-Here's Elixir compared against some of its well-known peers like Go and Java. Please remember to be pragmatic - be aware that each language has its own strengths and weaknesses. If there was a single perfect language, we wouldn't have had so many languages and programming paradigms in the first place.
+Here's Elixir compared against some of its well-known peers like Go and Java. One should be pragmatic - each language has its own strengths and weaknesses. If there was a single perfect language, we wouldn't have had so many languages and programming paradigms in the first place.
 
 | **Feature**                | **Elixir**                               | **Go**                                | **Java**                              |
 |----------------------------|------------------------------------------|---------------------------------------|---------------------------------------|
