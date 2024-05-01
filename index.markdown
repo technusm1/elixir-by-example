@@ -1,21 +1,21 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: default
 title: "Table of Contents"
 ---
 
-## The Basics
+## Introduction
 
 - [Introduction to Elixir]({{ site.baseurl }}{% link _pages/introduction-to-elixir.md %})
 - [Your First Elixir Code]({{ site.baseurl }}{% link _pages/your-first-elixir-code.md %})
-- [Variables and Immutability]()
+- [IEx Introduction]({{ site.baseurl }}{% link _pages/iex-introduction.md %})
+- [Functional Programming Concepts]({{ site.baseurl }}{% link _pages/concepts.md %})
+
+## The Basics
+
 - [Basic types]({{ site.baseurl }}{% link _pages/basic-types.md %})
 - [Basic Operators]({{ site.baseurl }}{% link _pages/basic-operators.md %})
 - [Functions]({{ site.baseurl }}{% link _pages/functions.md %})
 - [Modules]({{ site.baseurl }}{% link _pages/modules.md %})
-- [IEx Introduction]({{ site.baseurl }}{% link _pages/iex-introduction.md %})
 - [Mix Introduction]({{ site.baseurl }}{% link _pages/mix-introduction.md %})
 - [Pattern Matching and Guards]({{ site.baseurl }}{% link _pages/pattern-matching-and-guards.md %})
 - [Sigils]({{ site.baseurl }}{% link _pages/sigils.md %})
