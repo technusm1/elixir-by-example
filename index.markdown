@@ -10,6 +10,7 @@ title: "Table of Contents"
 
 - [Introduction to Elixir]({{ site.baseurl }}{% link _pages/introduction-to-elixir.md %})
 - [Your First Elixir Code]({{ site.baseurl }}{% link _pages/your-first-elixir-code.md %})
+- [Variables and Immutability]()
 - [Basic types]({{ site.baseurl }}{% link _pages/basic-types.md %})
 - [Basic Operators]({{ site.baseurl }}{% link _pages/basic-operators.md %})
 - [Functions]({{ site.baseurl }}{% link _pages/functions.md %})
