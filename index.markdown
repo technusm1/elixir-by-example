@@ -16,7 +16,6 @@ title: "Table of Contents"
 - [Basic Operators]({{ site.baseurl }}{% link _pages/basic-operators.md %})
 - [Functions]({{ site.baseurl }}{% link _pages/functions.md %})
 - [Modules]({{ site.baseurl }}{% link _pages/modules.md %})
-- [Mix Introduction]({{ site.baseurl }}{% link _pages/mix-introduction.md %})
 - [Pattern Matching and Guards]({{ site.baseurl }}{% link _pages/pattern-matching-and-guards.md %})
 - [Sigils]({{ site.baseurl }}{% link _pages/sigils.md %})
 - [Pipe Operator]({{ site.baseurl }}{% link _pages/pipe-operator.md %})
@@ -24,15 +23,19 @@ title: "Table of Contents"
 - [Structs]({{ site.baseurl }}{% link _pages/structs.md %})
 - [Behaviours]({{ site.baseurl }}{% link _pages/behaviours.md %})
 - [Protocols]({{ site.baseurl }}{% link _pages/protocols.md %})
-- [Processes and Inter-Process Communication]({{ site.baseurl }}{% link _pages/processes-and-ipc.md %})
 - [Error Handling]({{ site.baseurl }}{% link _pages/error-handling.md %})
+- [Processes and Inter-Process Communication]({{ site.baseurl }}{% link _pages/processes-and-ipc.md %})
 
-## Standard Library features
+## Standard features
 
 - [Strings]({{ site.baseurl }}{% link _pages/strings.md %})
 - [Stream and Enum modules]({{ site.baseurl }}{% link _pages/stream-and-enum-modules.md %})
 - [File I/O]({{ site.baseurl }}{% link _pages/file-io.md %})
 - [Date and Time]({{ site.baseurl }}{% link _pages/date-and-time.md %})
+- [Mix]({{ site.baseurl }}{% link _pages/mix-introduction.md %})
+
+## OTP features
+
 - [GenServer]({{ site.baseurl }}{% link _pages/genserver.md %})
 - [Task]({{ site.baseurl }}{% link _pages/task.md %})
 - [Agent]({{ site.baseurl }}{% link _pages/agent.md %})
