@@ -3,13 +3,13 @@ title: "Your First Elixir Code"
 ---
 
 {% contentfor sidebar %}
-Go ahead and have a look the [installation instructions](https://elixir-lang.org/install.html) for setting up Elixir. Once you're done, come back to this page.
+Go ahead and have a look at the [installation instructions](https://elixir-lang.org/install.html) for setting up Elixir. Once you're done, come back to this page.
 {% endcontentfor %}
 
 ## Our First Elixir Program
+It's time to write your first Elixir program! Following a tradition that dates back to the 1970s, we'll start by creating a program that prints "Hello, world!" to the screen. This simple program will help us verify that everything is set up correctly and introduce us to some basic Elixir concepts.
 
-Dating back to the 1970s, the first program for learners trying out a new programming language has been to print the text `Hello, world!` on screen.
-
+Let's dive in! Open your favorite text editor and type the following code:
 Let's try the same for Elixir. We'll try out different ways to do it.
 
 ### Option - 1: Scripting mode
@@ -20,9 +20,9 @@ Go ahead and type the following code in an IDE / Text Editor of your choice.
 IO.puts("Hello, world!")
 ```
 
-Save the file as `hello_world.exs`.
+Save this file as `hello_world.exs`. Don't worry too much about the `.exs` extension for now - we'll explain that in a moment.
 
-To run the program, type the following command in your terminal / command prompt:
+To run the program, open your terminal and type:
 
 ```sh
 elixir hello_world.exs
