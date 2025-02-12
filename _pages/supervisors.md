@@ -14,7 +14,7 @@ Supervisors are processes that monitor other processes (called child processes) 
 - **Process Dependencies**: Manage startup and shutdown order
 - **Zero Downtime**: Keep your application running even when things go wrong
 
-{% include youtube.html id="cG8iwK_6KIg" %}
+<iframe width="560" height="315" src="https://www.youtube.com/embed/cG8iwK_6KIg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 This creative video explains supervision strategies using the classic game Doom! It's a fun way to understand how different supervisor strategies work in practice.
 
