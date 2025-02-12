@@ -1,0 +1,137 @@
+:root {
+  --primary-color: #4A90E2;
+  --text-color: #2C3E50;
+  --sidebar-bg: #F8F9FA;
+  --link-color: #3498DB;
+  --link-hover-color: #2980B9;
+  --header-bg: white;
+  --border-color: #E1E4E8;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+}
+
+header {
+  position: fixed;
+  width: 300px;
+  height: 100vh;
+  padding: 2rem;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+header h1 {
+  margin-top: 0;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+header h1 a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+header img {
+  max-width: 150px;
+  display: block;
+  margin: 1rem 0;
+}
+
+header p {
+  margin-bottom: 1.5rem;
+}
+
+section {
+  padding: 2rem 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+footer {
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: #666;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
+}
+
+/* Responsive design */
+@media screen and (max-width: 800px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  header {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+  }
+
+  section {
+    padding: 1rem;
+  }
+}
+
+/* Typography improvements */
+h2 {
+  color: var(--primary-color);
+  margin-top: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+ul {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
+}
+
+/* Custom styles for the table of contents */
+.toc-section {
+  margin-bottom: 2rem;
+}
+
+.toc-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc-section li {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.toc-section li:before {
+  content: "•";
+  color: var(--primary-color);
+  position: absolute;
+  left: 0;
+} 
