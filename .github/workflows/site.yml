@@ -95,6 +95,8 @@ jobs:
           curl -sf -o /dev/null https://elixirbyexample.com/
           curl -sf https://elixirbyexample.com/llms.txt | head -1 | grep -q "Elixir by Example"
           curl -sfI https://elixirbyexample.com/core/maps | grep -qi "cross-origin-embedder-policy: require-corp"
+          # No third-party scripts (e.g. Cloudflare's auto-injected analytics beacon).
+          ! curl -sf https://elixirbyexample.com/otp/genserver | grep -Eq '<script[^>]+src="https?://'
           # Pages must revalidate; the runtime they point at is versioned.
           curl -sfI https://elixirbyexample.com/otp/genserver | grep -qi "cache-control: public, max-age=0, must-revalidate"
           runtime=$(curl -sf https://elixirbyexample.com/otp/genserver | grep -o 'data-runtime="/popcorn/[0-9a-f]\{12\}/"' | cut -d'"' -f2)
