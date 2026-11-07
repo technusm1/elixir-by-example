@@ -26,9 +26,13 @@ in_stock = for {fruit, n} <- stock, n > 0, do: fruit
 IO.inspect(Enum.sort(in_stock), label: "in stock")
 
 # `into:` collects into something other than a list,
-# such as a map or a string.
+# such as a map or a string. Maps have no order, and
+# how they print can differ between runtimes (this
+# very example printed `b` first in the browser), so
+# read keys explicitly instead of relying on output.
 upcased = for {k, v} <- %{a: "x", b: "y"}, into: %{}, do: {k, String.upcase(v)}
-IO.inspect(upcased, label: "into map")
+IO.inspect(upcased.a, label: "into map, :a")
+IO.inspect(Enum.sort(upcased), label: "sorted pairs")
 
 # Bitstring generators walk binaries byte by byte.
 bytes = for <<b <- "hi!">>, do: b
