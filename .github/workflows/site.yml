@@ -95,3 +95,6 @@ jobs:
           curl -sf -o /dev/null https://elixirbyexample.com/
           curl -sf https://elixirbyexample.com/llms.txt | head -1 | grep -q "Elixir by Example"
           curl -sfI https://elixirbyexample.com/core/maps | grep -qi "cross-origin-embedder-policy: require-corp"
+          # A cached runtime manifest pairs new pages with an old runtime.
+          curl -sfI https://elixirbyexample.com/popcorn/otp/manifest.json | grep -qi "cache-control: public, max-age=0, must-revalidate"
+          curl -sfI https://elixirbyexample.com/popcorn/index.mjs | grep -qi "cache-control: public, max-age=0, must-revalidate"

@@ -164,10 +164,13 @@ function withHeaders(asset, pathname) {
     h.set("Cross-Origin-Resource-Policy", "cross-origin");
   }
 
+  // Only content-hashed archives may be cached long. Everything else, Popcorn's
+  // manifest and loaders included, must revalidate on every load: a stale
+  // manifest would pair a new page with an old runtime.
   if (HASHED.test(pathname)) {
     h.set("Cache-Control", "public, max-age=31536000, immutable");
-  } else if (pathname.startsWith("/popcorn/")) {
-    h.set("Cache-Control", "public, max-age=3600, must-revalidate");
+  } else {
+    h.set("Cache-Control", "public, max-age=0, must-revalidate");
   }
   return response;
 }

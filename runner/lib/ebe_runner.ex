@@ -34,6 +34,11 @@ defmodule EbeRunner do
     {:noreply, state}
   end
 
+  # A page built for a different runner version (normally only possible with
+  # stale caches). Say so instead of crashing, so the page can ask for a reload.
+  def handle_call(_request, _from, state),
+    do: {:reply, %{"ok" => false, "outdated" => true}, state}
+
   # `Code.compile_string/2` is what `elixir file.exs` does (via
   # `Code.require_file/1`). `Code.eval_string/3` would go through the
   # interpreter instead, which formats some errors differently.

@@ -359,6 +359,10 @@ async function execute(upTo = cells.length) {
     const partial = upTo < cells.length;
     const { code, starts } = source(upTo);
     const result = await vm.call("main", ["run", file, code, partial], { timeoutMs: TIMEOUT_MS });
+    if (result.outdated) {
+      setStatus("The site was updated. Reload the page to run examples.", "err");
+      return;
+    }
     showDiagnostics(result.diagnostics, starts);
     // A cell that ran but printed nothing (e.g. it only defines a module) says
     // so, instead of looking like it never ran.
