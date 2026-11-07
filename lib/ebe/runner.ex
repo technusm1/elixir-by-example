@@ -40,15 +40,19 @@ defmodule Ebe.Runner do
     :ok
   end
 
-  @doc "Runs the example at `path` and returns its combined stdout/stderr."
-  @spec run(Path.t()) :: result()
-  def run(path) do
-    path = Path.expand(path)
+  @doc """
+  Runs `source` as if it were the file at `path` (same basename, so error
+  messages name the right file) and returns its combined stdout/stderr.
+  """
+  @spec run(Path.t(), String.t()) :: result()
+  def run(path, source) do
     workdir = Path.join(System.tmp_dir!(), "ebe-run-#{System.unique_integer([:positive])}")
     File.mkdir_p!(workdir)
+    script = Path.join(workdir, Path.basename(path))
+    File.write!(script, source)
 
     try do
-      path |> exec(workdir) |> check(path)
+      script |> exec(workdir) |> check(path)
     after
       File.rm_rf!(workdir)
     end

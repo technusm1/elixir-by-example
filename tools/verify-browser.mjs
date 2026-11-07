@@ -44,17 +44,22 @@ async function check(path) {
     const run = page.locator("#run");
     if ((await run.count()) === 0) return { path, status: "skipped" };
 
-    const expected = normalize(await page.locator("#output").innerText());
+    // Output per cell, in order: "[cell n]" headers make misrouted output a diff too.
+    const cellOutputs = () =>
+      page.$$eval(".cell[data-cell]", (cells) =>
+        cells.map((c) => `[cell ${c.dataset.cell}]\n${c.querySelector(".cell-out code").textContent.replace(/\s+$/, "")}`).join("\n"),
+      );
+    const expected = normalize(await cellOutputs());
     await run.click();
     await page.waitForFunction(
-      () => /\[(finished|failed) in \d+ ms|\[error:/.test(document.querySelector("#output").innerText),
+      () => /^[✓✗]/.test(document.querySelector("#status").textContent),
       null,
       { timeout: TIMEOUT_MS },
     );
-    const text = await page.locator("#output").innerText();
-    if (!/\[finished in \d+ ms/.test(text)) return { path, status: "failed", text };
+    const status = await page.locator("#status").innerText();
+    if (!status.startsWith("✓")) return { path, status: "failed", text: status + "\n" + (await cellOutputs()) };
 
-    const actual = normalize(text.replace(/\n*\[finished in \d+ ms, in your browser\]\s*$/, ""));
+    const actual = normalize(await cellOutputs());
     if (actual === expected) return { path, status: "ok" };
     if (allowed[path]) return { path, status: "allowed-diff", reason: allowed[path] };
     return { path, status: "diff", expected, actual };

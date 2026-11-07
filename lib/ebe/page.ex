@@ -4,16 +4,36 @@ defmodule Ebe.Page do
   alias Ebe.Catalog.Entry
 
   defmodule Segment do
-    @moduledoc "A rendered prose/code pair."
-    @enforce_keys [:doc_html, :code_html]
-    defstruct [:doc_html, :code_html]
-    @type t :: %__MODULE__{doc_html: String.t(), code_html: String.t()}
+    @moduledoc """
+    A rendered prose/code pair. `cell` numbers code cells from 1 (nil for
+    prose-only segments); `output` is what that cell printed.
+    """
+    @enforce_keys [:doc_html, :code_html, :code, :cell, :output]
+    defstruct @enforce_keys
+
+    @type t :: %__MODULE__{
+            doc_html: String.t(),
+            code_html: String.t(),
+            code: String.t(),
+            cell: pos_integer() | nil,
+            output: String.t() | nil
+          }
   end
 
-  @enforce_keys [:entry, :source, :segments, :output, :description, :uses, :edit_url]
+  @enforce_keys [
+    :entry,
+    :source,
+    :program,
+    :segments,
+    :output,
+    :description,
+    :uses,
+    :edit_url
+  ]
   defstruct [
     :entry,
     :source,
+    :program,
     :segments,
     :output,
     :description,
@@ -26,6 +46,7 @@ defmodule Ebe.Page do
   @type t :: %__MODULE__{
           entry: Entry.t(),
           source: String.t(),
+          program: String.t(),
           segments: [Segment.t()],
           output: String.t(),
           description: String.t(),

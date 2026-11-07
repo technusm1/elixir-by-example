@@ -45,4 +45,26 @@ defmodule Ebe.SourceTest do
   test "every registered example is registered exactly once" do
     assert Ebe.Catalog.unregistered_files() == []
   end
+
+  describe "cells" do
+    @source "# One\nIO.puts(1)\n\n# Two\nx = 2\nIO.puts(x)\n"
+
+    test "segments record the first code line" do
+      assert [%Segment{line: 2}, %Segment{line: 5}] = Source.segments(@source)
+    end
+
+    test "instrument keeps line numbers and marks each cell" do
+      instrumented = Source.instrument(@source, Source.segments(@source))
+      lines = String.split(instrumented, "\n")
+      assert length(lines) == length(String.split(@source, "\n"))
+      assert Enum.at(lines, 1) == Source.marker_call(1) <> "IO.puts(1)"
+      assert Enum.at(lines, 4) == Source.marker_call(2) <> "x = 2"
+    end
+
+    test "split_output routes text to cells and strip_markers removes markers" do
+      raw = "early\n\u001E1\u001Eone\n\u001E2\u001Etwo\n"
+      assert Source.split_output(raw) == %{1 => "early\none", 2 => "two"}
+      assert Source.strip_markers(raw) == "early\none\ntwo\n"
+    end
+  end
 end

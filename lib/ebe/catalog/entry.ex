@@ -1,10 +1,13 @@
 defmodule Ebe.Catalog.Entry do
-  @moduledoc "One page: a concept example or a project step."
+  @moduledoc """
+  One page: a concept example, a project step (both `.exs` files that run), or
+  a project intro (a Markdown file).
+  """
 
   @enforce_keys [:slug, :title, :kind, :track_id, :source_path, :url]
   defstruct [:slug, :title, :kind, :track_id, :source_path, :url, uses: [], no_run: nil]
 
-  @type kind :: :example | :step
+  @type kind :: :example | :step | :intro
 
   @type t :: %__MODULE__{
           slug: String.t(),
@@ -23,7 +26,17 @@ defmodule Ebe.Catalog.Track do
 
   alias Ebe.Catalog.Entry
 
-  @enforce_keys [:id, :index, :title, :blurb, :project_id, :project_title, :examples, :steps]
+  @enforce_keys [
+    :id,
+    :index,
+    :title,
+    :blurb,
+    :project_id,
+    :project_title,
+    :examples,
+    :intro,
+    :steps
+  ]
   defstruct @enforce_keys
 
   @type t :: %__MODULE__{
@@ -34,6 +47,7 @@ defmodule Ebe.Catalog.Track do
           project_id: String.t(),
           project_title: String.t(),
           examples: [Entry.t()],
+          intro: Entry.t(),
           steps: [Entry.t()]
         }
 end

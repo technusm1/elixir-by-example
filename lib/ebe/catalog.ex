@@ -100,9 +100,13 @@ defmodule Ebe.Catalog do
           {slug, title, path, opts}
         end
 
+      # Each project chapter opens with an intro page written in Markdown:
+      # projects/<project>/<track>.md
+      intro = Path.join([@root, "projects", project_id, t.id <> ".md"])
+
       all = examples ++ steps
 
-      for {_slug, _title, path, _opts} <- all do
+      for path <- [intro | Enum.map(all, &elem(&1, 2))] do
         @external_resource path
 
         unless File.regular?(path) do
@@ -124,6 +128,7 @@ defmodule Ebe.Catalog do
         index: index,
         examples: examples,
         steps: steps,
+        intro: intro,
         project_id: project_id,
         project_title: project_title
       })
@@ -154,12 +159,16 @@ defmodule Ebe.Catalog do
 
   @compiled_tracks tracks
 
-  @doc "All tracks, in display order, with their examples and project steps as `Entry` structs."
+  @doc """
+  All tracks, in display order, with their examples, project intro and project
+  steps as `Entry` structs.
+  """
   @spec tracks() :: [Track.t()]
   def tracks do
     Enum.map(@compiled_tracks, fn t ->
       examples = Enum.map(t.examples, &entry(&1, t, :example))
       steps = Enum.map(t.steps, &entry(&1, t, :step))
+      intro = entry({t.project_id, t.project_title, t.intro, []}, t, :intro)
 
       %Track{
         id: t.id,
@@ -169,6 +178,7 @@ defmodule Ebe.Catalog do
         project_id: t.project_id,
         project_title: t.project_title,
         examples: examples,
+        intro: intro,
         steps: steps
       }
     end)
@@ -189,6 +199,7 @@ defmodule Ebe.Catalog do
       case kind do
         :example -> "/#{t.id}/#{slug}"
         :step -> "/#{t.id}/#{t.project_id}-#{slug}"
+        :intro -> "/#{t.id}/#{t.project_id}"
       end
 
     %Entry{

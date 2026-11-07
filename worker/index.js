@@ -156,7 +156,7 @@ function withHeaders(asset, pathname) {
   const h = response.headers;
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) h.set(name, value);
 
-  if (pathname.endsWith(".exs") || pathname.endsWith(".txt")) {
+  if (/\.(exs|md|txt)$/.test(pathname)) {
     // Plain sources and llms.txt are meant to be fetched by anyone, including
     // agents and tools running in other origins.
     h.set("Content-Type", "text/plain; charset=utf-8");
@@ -175,7 +175,7 @@ function withHeaders(asset, pathname) {
 function classifyRequest(pathname, status) {
   if (status === 404) return "notfound";
   if (status !== 200) return null;
-  if (pathname.endsWith(".exs")) return "raw";
+  if (pathname.endsWith(".exs") || pathname.endsWith(".md")) return "raw";
   if (pathname === "/llms.txt" || pathname === "/llms-full.txt") return "llms";
   if (pathname === "/" || !/\.[a-z0-9]+$/i.test(pathname)) return "page";
   return null; // assets: css, js, popcorn runtime, favicon, sitemap...

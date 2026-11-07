@@ -18,25 +18,26 @@ defmodule EbeRunner do
   def handle_call(["run", file, code], from, state) when is_binary(file) and is_binary(code) do
     # Evaluate outside the GenServer so a crashing or blocking example
     # can't take the evaluator down with it.
-    spawn(fn -> GenServer.reply(from, evaluate(file, code)) end)
+    spawn(fn -> GenServer.reply(from, run(file, code)) end)
     {:noreply, state}
   end
 
   # `Code.compile_string/2` is what `elixir file.exs` does (via
   # `Code.require_file/1`). `Code.eval_string/3` would go through the
   # interpreter instead, which formats some errors differently.
-  defp evaluate(file, code) do
+  defp run(file, code) do
     Code.compile_string(code, file)
     # Give output from processes the script started a moment to flush.
     Process.sleep(20)
     %{"ok" => true}
   rescue
-    error ->
-      IO.write(:stderr, Exception.format(:error, error, __STACKTRACE__))
-      %{"ok" => false}
+    error -> failed(:error, error, __STACKTRACE__)
   catch
-    kind, reason ->
-      IO.write(:stderr, Exception.format(kind, reason, __STACKTRACE__))
-      %{"ok" => false}
+    kind, reason -> failed(kind, reason, __STACKTRACE__)
+  end
+
+  defp failed(kind, reason, stacktrace) do
+    IO.write(:stderr, Exception.format(kind, reason, stacktrace))
+    %{"ok" => false}
   end
 end
