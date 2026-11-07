@@ -32,7 +32,17 @@ defmodule Ebe.Pages do
         <title>{@title}</title>
         <meta name="description" content={@description} />
         <link rel="canonical" href={"https://elixirbyexample.com" <> @path} />
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#5c3b8c" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Elixir by Example" />
+        <meta property="og:title" content={@title} />
+        <meta property="og:description" content={@description} />
+        <meta property="og:url" content={"https://elixirbyexample.com" <> @path} />
+        <meta property="og:image" content="https://elixirbyexample.com/og.png" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
         <style>
           <%= Phoenix.HTML.raw(@css) %>

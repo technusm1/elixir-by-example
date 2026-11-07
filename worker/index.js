@@ -95,6 +95,9 @@ export default {
     }
 
     if (url.pathname === "/a") return beacon(request, env, ctx);
+    if (url.pathname === "/favicon.ico") {
+      return Response.redirect(new URL("/favicon-32.png", url.origin).toString(), 301);
+    }
 
     const redirect = oldUrl(url.pathname);
     if (redirect) return Response.redirect(new URL(redirect, url.origin).toString(), 301);
