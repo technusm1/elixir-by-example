@@ -82,7 +82,9 @@ const SECURITY_HEADERS = {
   ].join("; "),
 };
 
-const HASHED = /\.[a-f0-9]{64}\.(tar|boot)$/;
+// Content-addressed: Popcorn's hashed archives, and everything under the
+// versioned runtime directory /popcorn/<hash>/.
+const HASHED = /\.[a-f0-9]{64}\.(tar|boot)$|^\/popcorn\/[0-9a-f]{12}\//;
 const POPCORN_PRECOMPRESSED = /^\/popcorn\/.*\.(tar|wasm|mjs)$/;
 
 export default {

@@ -103,6 +103,8 @@ defmodule Ebe.Build do
   defp write_site(out, tracks, pages, intros) do
     css = File.read!(Path.join(@static, "site.css")) |> minify_css()
     track_by_id = Map.new(tracks, &{&1.id, &1})
+    runtime_files = runtime_files()
+    runtime = runtime_path(runtime_files)
 
     for intro <- intros do
       html = Pages.to_html(&Pages.intro/1, %{intro: intro, tracks: tracks, css: css})
@@ -112,7 +114,7 @@ defmodule Ebe.Build do
 
     for page <- pages do
       track = track_by_id[page.entry.track_id]
-      assigns = %{page: page, track: track, tracks: tracks, css: css}
+      assigns = %{page: page, track: track, tracks: tracks, css: css, runtime: runtime}
       write(out, page.entry.url <> ".html", Pages.to_html(&Pages.example/1, assigns))
       write(out, page.entry.url <> ".exs", page.source)
     end
@@ -127,7 +129,7 @@ defmodule Ebe.Build do
     write(out, "robots.txt", "User-agent: *\nAllow: /\nSitemap: #{@site}/sitemap.xml\n")
 
     copy_static(out)
-    copy_popcorn(out)
+    copy_runtime(out, runtime_files, runtime)
   end
 
   defp with_neighbours(entries) do
@@ -380,20 +382,47 @@ defmodule Ebe.Build do
     end
   end
 
-  defp copy_popcorn(out) do
+  # The browser runtime is served from a path containing a hash of its files,
+  # /popcorn/<hash>/. Pages always revalidate and point at the current hash, so
+  # a browser can never pair a new page with a cached old runtime, and the
+  # versioned files can be cached forever.
+  defp runtime_files do
     if File.dir?(@popcorn_out) do
       # Brotli variants are served by the Worker; gzip variants are never used.
-      for path <- Path.wildcard(Path.join(@popcorn_out, "**/*")),
-          File.regular?(path),
-          Path.extname(path) != ".gz" do
-        dest = Path.join([out, "popcorn", Path.relative_to(path, @popcorn_out)])
-        File.mkdir_p!(Path.dirname(dest))
-        File.cp!(path, dest)
-      end
+      Path.wildcard(Path.join(@popcorn_out, "**/*"))
+      |> Enum.filter(&(File.regular?(&1) and Path.extname(&1) != ".gz"))
+      |> Enum.sort()
     else
       Logger.warning(
         "runner/out missing: Run buttons won't work. Build it with `mix ebe.runner`."
       )
+
+      []
+    end
+  end
+
+  defp runtime_path([]), do: ""
+
+  defp runtime_path(files) do
+    hash =
+      files
+      |> Enum.reduce(:crypto.hash_init(:sha256), fn path, acc ->
+        acc
+        |> :crypto.hash_update(Path.relative_to(path, @popcorn_out))
+        |> :crypto.hash_update(File.read!(path))
+      end)
+      |> :crypto.hash_final()
+      |> Base.encode16(case: :lower)
+      |> binary_part(0, 12)
+
+    "/popcorn/#{hash}/"
+  end
+
+  defp copy_runtime(out, files, runtime) do
+    for path <- files do
+      dest = Path.join([out, runtime, Path.relative_to(path, @popcorn_out)])
+      File.mkdir_p!(Path.dirname(dest))
+      File.cp!(path, dest)
     end
   end
 

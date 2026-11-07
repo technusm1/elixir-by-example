@@ -258,7 +258,9 @@ let current = 1;
 let inMarker = false;
 let markerBuf = "";
 
-const loadPopcorn = () => import("/popcorn/index.mjs").then((m) => (Popcorn = m.Popcorn));
+// The runtime lives under a versioned path (/popcorn/<hash>/) chosen at build
+// time, so a cached old runtime can never be paired with this page.
+const loadPopcorn = () => import(`${notebook.dataset.runtime}index.mjs`).then((m) => (Popcorn = m.Popcorn));
 
 function setStatus(text, cls = "") {
   status.textContent = text;

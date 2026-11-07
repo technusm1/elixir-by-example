@@ -152,6 +152,7 @@ defmodule Ebe.Pages do
   attr :track, Track, required: true
   attr :tracks, :list, required: true
   attr :css, :string, required: true
+  attr :runtime, :string, required: true, doc: "versioned path of the browser runtime"
 
   def example(assigns) do
     ~H"""
@@ -175,7 +176,7 @@ defmodule Ebe.Pages do
           Builds on <a :for={u <- @page.uses} href={u.url} class="chip">{u.title}</a>
         </p>
 
-        <div class="notebook" data-file={@page.entry.slug <> ".exs"}>
+        <div class="notebook" data-file={@page.entry.slug <> ".exs"} data-runtime={@runtime}>
           <div class="nb-bar">
             <span class="nb-hint">
               {if @page.entry.no_run,
