@@ -236,6 +236,8 @@ textarea.cell-edit::placeholder { color: var(--t-com); font-style: italic; }
 .cell-out.live { box-shadow: inset 3px 0 0 var(--ok); }
 .cell-out .stderr { color: var(--t-num); }
 .cell-out.stale { opacity: 0.4; }
+.cell-out.quiet { padding-bottom: 0.6rem; }
+.cell-out.quiet::before { content: "ran · no output"; margin: 0; text-transform: none; letter-spacing: 0; font-weight: 400; font-style: italic; }
 
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.5rem; }
 .pager a { display: block; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.85rem 1rem; text-decoration: none; color: var(--fg); font-weight: 600; }

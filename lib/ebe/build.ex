@@ -226,8 +226,9 @@ defmodule Ebe.Build do
     }
   end
 
-  defp render_segment(%Source.Segment{doc: doc, code: code}, cell, output) do
+  defp render_segment(%Source.Segment{doc: doc, code: code, line: line}, cell, output) do
     %Page.Segment{
+      line: line,
       doc_html: if(doc == "", do: "", else: markdown(doc)),
       code_html: if(code == "", do: "", else: highlight(code)),
       code: code,

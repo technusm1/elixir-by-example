@@ -6,9 +6,10 @@ defmodule Ebe.Page do
   defmodule Segment do
     @moduledoc """
     A rendered prose/code pair. `cell` numbers code cells from 1 (nil for
-    prose-only segments); `output` is what that cell printed.
+    prose-only segments), `line` is the cell's first line in the source file,
+    and `output` is what that cell printed.
     """
-    @enforce_keys [:doc_html, :code_html, :code, :cell, :output]
+    @enforce_keys [:doc_html, :code_html, :code, :cell, :line, :output]
     defstruct @enforce_keys
 
     @type t :: %__MODULE__{
@@ -16,6 +17,7 @@ defmodule Ebe.Page do
             code_html: String.t(),
             code: String.t(),
             cell: pos_integer() | nil,
+            line: pos_integer() | nil,
             output: String.t() | nil
           }
   end

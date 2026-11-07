@@ -22,6 +22,7 @@ const cells = $$(".cell[data-cell]").map((el, i) => {
   return {
     n: i + 1,
     el,
+    line: Number(el.dataset.line),
     pre: $("pre.code", el),
     ta: $("textarea.cell-edit", el),
     btn: $(".cell-run", el),
@@ -83,7 +84,7 @@ function reset() {
     cell.pre.innerHTML = cell.builtHtml;
     cell.out.innerHTML = cell.builtOut;
     cell.out.classList.toggle("empty", cell.out.textContent.trim() === "");
-    cell.out.classList.remove("live", "stale");
+    cell.out.classList.remove("live", "stale", "quiet");
     fit(cell);
   }
   resetBtn.hidden = true;
@@ -301,13 +302,27 @@ function route(chunk, cls) {
   append(plain, cls);
 }
 
-// The unedited page runs the exact program verified at build time.
+// The unedited page runs the exact program verified at build time. Returns the
+// code plus each cell's first line in it, to place compiler diagnostics.
 function source(upTo) {
-  if (upTo === cells.length && !isDirty()) return program;
-  return cells
-    .slice(0, upTo)
-    .map((c) => `IO.write("\\u001E${c.n}\\u001E"); ${c.ta.value}`)
-    .join("\n\n");
+  if (upTo === cells.length && !isDirty()) return { code: program, starts: cells.map((c) => c.line) };
+  const starts = [];
+  let line = 1;
+  const parts = cells.slice(0, upTo).map((c) => {
+    starts.push(line);
+    line += c.ta.value.split("\n").length + 1; // cells are joined by a blank line
+    return `IO.write("\\u001E${c.n}\\u001E"); ${c.ta.value}`;
+  });
+  return { code: parts.join("\n\n"), starts };
+}
+
+function showDiagnostics(diagnostics, starts) {
+  for (const d of diagnostics ?? []) {
+    let index = 0;
+    if (d.line) starts.forEach((start, i) => d.line >= start && (index = i));
+    current = index + 1;
+    append(`${d.severity}: ${d.message}${d.line ? ` (line ${d.line})` : ""}\n`, "stderr");
+  }
 }
 
 async function execute(upTo = cells.length) {
@@ -321,7 +336,7 @@ async function execute(upTo = cells.length) {
   markerBuf = "";
   for (const cell of cells) {
     const ran = cell.n <= upTo;
-    cell.out.classList.remove("live");
+    cell.out.classList.remove("live", "quiet");
     cell.out.classList.toggle("stale", !ran);
     if (ran) {
       cell.out.firstElementChild.textContent = "";
@@ -341,7 +356,15 @@ async function execute(upTo = cells.length) {
       onStderr: (text) => route(text, "stderr"),
     });
     setStatus(`Running ${what}…`);
-    const result = await vm.call("main", ["run", file, source(upTo)], { timeoutMs: TIMEOUT_MS });
+    const partial = upTo < cells.length;
+    const { code, starts } = source(upTo);
+    const result = await vm.call("main", ["run", file, code, partial], { timeoutMs: TIMEOUT_MS });
+    showDiagnostics(result.diagnostics, starts);
+    // A cell that ran but printed nothing (e.g. it only defines a module) says
+    // so, instead of looking like it never ran.
+    for (const cell of cells.slice(0, upTo)) {
+      if (cell.out.classList.contains("empty")) cell.out.classList.replace("empty", "quiet");
+    }
     const ms = Math.round(performance.now() - started);
     if (result.ok) setStatus(`✓ Ran ${what} · ${ms} ms`, "ok");
     else setStatus(`✗ Failed after ${ms} ms (see output)`, "err");

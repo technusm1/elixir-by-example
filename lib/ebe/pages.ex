@@ -188,7 +188,7 @@ defmodule Ebe.Pages do
 
           <section :for={seg <- @page.segments} class={["step", is_nil(seg.cell) && "prose-only"]}>
             <div :if={seg.doc_html != ""} class="prose">{Phoenix.HTML.raw(seg.doc_html)}</div>
-            <div :if={seg.cell} class="cell" data-cell={seg.cell}>
+            <div :if={seg.cell} class="cell" data-cell={seg.cell} data-line={seg.line}>
               <span class="cell-no" aria-hidden="true">{seg.cell}</span>
               <div class="cell-body">
                 <button
