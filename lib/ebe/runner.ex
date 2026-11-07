@@ -15,6 +15,8 @@ defmodule Ebe.Runner do
   """
 
   @timeout_ms 30_000
+  # A walkthrough may fetch and compile dependencies and start several nodes.
+  @walk_timeout_ms 180_000
 
   @type result :: {:ok, String.t()} | {:error, String.t()}
 
@@ -75,23 +77,102 @@ defmodule Ebe.Runner do
 
   defp exec(path, workdir, args) do
     {elixir, search_path} = toolchain()
+    env = [{~c"PATH", String.to_charlist(search_path)}, {~c"MIX_ENV", ~c"prod"}]
+    spawn_collect(elixir, args ++ [path], workdir, env, @timeout_ms)
+  end
 
+  defp spawn_collect(executable, args, workdir, env, timeout_ms) do
     port =
-      Port.open({:spawn_executable, elixir}, [
+      Port.open({:spawn_executable, executable}, [
         :binary,
         :exit_status,
         :stderr_to_stdout,
         :hide,
-        args: args ++ [path],
+        args: args,
         cd: workdir,
-        env: [
-          {~c"PATH", String.to_charlist(search_path)},
-          {~c"MIX_ENV", ~c"prod"},
-          {~c"NO_COLOR", ~c"1"}
-        ]
+        env: [{~c"NO_COLOR", ~c"1"} | env]
       ])
 
-    collect(port, [], System.monotonic_time(:millisecond) + @timeout_ms)
+    collect(port, [], System.monotonic_time(:millisecond) + timeout_ms)
+  end
+
+  @doc """
+  Runs a walkthrough (see `Ebe.Walkthrough`): copies the project files from
+  `dir` into a throwaway directory, then runs all its `sh` blocks there in
+  *one* `/bin/sh -e` session, as a reader would in one terminal: variables,
+  functions and background processes from one block are still there in the
+  next. Returns each block's combined output.
+
+  A marker printed before each block splits the output. A block marked
+  `fails` runs in a subshell as an `if` condition, so its failure doesn't end
+  the session; its exit status is that of its last command, and the session
+  stops if that is zero. Any other failing command stops the session too.
+  Output containing a compiler warning is a failure. `MIX_ENV` is unset, so
+  the walkthrough states it wherever it matters.
+  """
+  @spec run_walkthrough(Path.t(), [Ebe.Walkthrough.Block.t()]) ::
+          {:ok, [String.t()]} | {:error, String.t()}
+  def run_walkthrough(dir, blocks) do
+    workdir = Path.join(System.tmp_dir!(), "ebe-walk-#{System.unique_integer([:positive])}")
+
+    for rel <- Ebe.Walkthrough.files(dir) do
+      dest = Path.join(workdir, rel)
+      File.mkdir_p!(Path.dirname(dest))
+      File.cp!(Path.join(dir, rel), dest)
+    end
+
+    {_elixir, search_path} = toolchain()
+    env = [{~c"PATH", String.to_charlist(search_path)}, {~c"MIX_ENV", false}]
+    sh = Enum.filter(blocks, &(&1.kind == :sh))
+
+    try do
+      result = spawn_collect("/bin/sh", ["-e", "-c", session(sh)], workdir, env, @walk_timeout_ms)
+      check_session(result, length(sh), rel(dir))
+    after
+      File.rm_rf!(workdir)
+    end
+  end
+
+  @marker "\u001E"
+
+  defp session(blocks) do
+    blocks
+    |> Enum.with_index(1)
+    |> Enum.map_join("\n", fn {block, n} ->
+      mark = "printf '\\036#{n}\\036'"
+
+      if block.fails do
+        "#{mark}\nif (\n#{block.text}\n); then echo 'ebe: block #{n} is marked fails but succeeded'; exit 97; fi"
+      else
+        "#{mark}\n#{block.text}"
+      end
+    end)
+  end
+
+  defp check_session({status, out}, count, name) do
+    [_before | parts] = String.split(out, @marker)
+    outputs = parts |> Enum.chunk_every(2) |> Enum.map(fn [_n | text] -> Enum.join(text) end)
+    reached = length(outputs)
+    last = List.last(outputs) || out
+
+    cond do
+      status == :timeout ->
+        {:error,
+         "#{name}: walkthrough timed out after #{@walk_timeout_ms}ms in sh block #{reached}:\n\n#{last}"}
+
+      status != 0 ->
+        {:error, "#{name}: sh block #{reached} failed (exit status #{status}):\n\n#{last}"}
+
+      reached != count ->
+        {:error, "#{name}: only #{reached} of #{count} sh blocks ran:\n\n#{out}"}
+
+      (n = Enum.find_index(outputs, &(&1 =~ ~r/^\s*warning: /m))) != nil ->
+        {:error,
+         "#{name}: sh block #{n + 1} emitted warnings (treated as errors):\n\n#{Enum.at(outputs, n)}"}
+
+      true ->
+        {:ok, outputs}
+    end
   end
 
   defp collect(port, acc, deadline) do

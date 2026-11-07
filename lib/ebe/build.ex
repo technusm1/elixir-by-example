@@ -15,13 +15,14 @@ defmodule Ebe.Build do
 
   alias Ebe.Catalog
   alias Ebe.Catalog.{Entry, Track}
-  alias Ebe.{Page, Pages, Runner, Source}
+  alias Ebe.{Page, Pages, Runner, Source, Walkthrough, WalkthroughPage}
 
   @root Path.expand("../..", __DIR__)
   @static Path.join(@root, "priv/static")
   @popcorn_out Path.join(@root, "runner/out")
   @cache_dir Path.join(@root, "_build/ebe_cache")
   @repo_blob "https://github.com/technusm1/elixir-by-example/blob/main/"
+  @repo_tree "https://github.com/technusm1/elixir-by-example/tree/main/"
   @site "https://elixirbyexample.com"
 
   @type opts :: [out: Path.t(), only: [String.t()] | nil]
@@ -114,9 +115,14 @@ defmodule Ebe.Build do
 
     for page <- pages do
       track = track_by_id[page.entry.track_id]
-      assigns = %{page: page, track: track, tracks: tracks, css: css, runtime: runtime}
-      write(out, page.entry.url <> ".html", Pages.to_html(&Pages.example/1, assigns))
-      write(out, page.entry.url <> ".exs", page.source)
+
+      write_page(out, page, %{
+        page: page,
+        track: track,
+        tracks: tracks,
+        css: css,
+        runtime: runtime
+      })
     end
 
     write(out, "index.html", Pages.to_html(&Pages.index/1, %{tracks: tracks, css: css}))
@@ -130,6 +136,19 @@ defmodule Ebe.Build do
 
     copy_static(out)
     copy_runtime(out, runtime_files, runtime)
+  end
+
+  # A script page ships its `.exs`; a walkthrough page its Markdown twin and
+  # the project as a `.zip`.
+  defp write_page(out, %WalkthroughPage{} = page, assigns) do
+    write(out, page.entry.url <> ".html", Pages.to_html(&Pages.walkthrough/1, assigns))
+    write(out, page.entry.url <> ".md", page.markdown)
+    write(out, page.entry.url <> ".zip", page.zip)
+  end
+
+  defp write_page(out, %Page{} = page, assigns) do
+    write(out, page.entry.url <> ".html", Pages.to_html(&Pages.example/1, assigns))
+    write(out, page.entry.url <> ".exs", page.source)
   end
 
   defp with_neighbours(entries) do
@@ -150,6 +169,24 @@ defmodule Ebe.Build do
       ordered: true
     )
     |> Enum.map(fn {:ok, result} -> result end)
+  end
+
+  # A walkthrough's sh blocks run once, in a fresh copy of its project; the
+  # list of block outputs is cached by the content of every file.
+  defp cached_run(%Entry{format: :walkthrough, source_path: dir}) do
+    text = File.read!(Path.join(dir, Walkthrough.walkthrough()))
+    blocks = Walkthrough.parse(text)
+    files = Walkthrough.files(dir)
+
+    with :ok <- check_walkthrough(dir, blocks, files) do
+      contents = for rel <- files, do: [rel, 0, File.read!(Path.join(dir, rel)), 0]
+
+      key =
+        :crypto.hash(:sha256, ["walk-v2", text, contents, System.version(), System.otp_release()])
+        |> Base.url_encode64(padding: false)
+
+      cached_walkthrough(Path.join(@cache_dir, key), dir, blocks)
+    end
   end
 
   # Runs the program (code cells only, cell markers added) once; the raw output,
@@ -175,9 +212,71 @@ defmodule Ebe.Build do
     end
   end
 
+  defp cached_walkthrough(cache, dir, blocks) do
+    case File.read(cache) do
+      {:ok, binary} ->
+        {:ok, :erlang.binary_to_term(binary)}
+
+      {:error, _} ->
+        with {:ok, outputs} <- Runner.run_walkthrough(dir, blocks) do
+          File.write!(cache, :erlang.term_to_binary(outputs))
+          {:ok, outputs}
+        end
+    end
+  end
+
+  defp check_walkthrough(dir, blocks, files) do
+    case Walkthrough.check(blocks, files) do
+      :ok ->
+        :ok
+
+      {:error, why} ->
+        {:error, "#{Path.relative_to(dir, @root)}/#{Walkthrough.walkthrough()} #{why}"}
+    end
+  end
+
   ## Pages
 
   defp program(source), do: source |> Source.segments() |> Source.program()
+
+  defp build_page(%Entry{format: :walkthrough} = entry, prev, next, outputs, by_slug) do
+    dir = entry.source_path
+    blocks = dir |> Path.join(Walkthrough.walkthrough()) |> File.read!() |> Walkthrough.parse()
+    files = Map.new(Walkthrough.files(dir), &{&1, File.read!(Path.join(dir, &1))})
+
+    {rendered, []} =
+      Enum.map_reduce(blocks, outputs, fn
+        %{kind: :prose, text: text}, outs ->
+          {%{kind: :prose, text: text, html: markdown(text)}, outs}
+
+        %{kind: :file, path: path}, outs ->
+          code = String.trim_trailing(Map.fetch!(files, path))
+          {%{kind: :file, path: path, code: code, html: highlight_file(path, code)}, outs}
+
+        %{kind: :sh} = block, [out | outs] ->
+          {%{
+             kind: :sh,
+             script: block.text,
+             html: sh_html(block.text),
+             output: String.trim_trailing(out),
+             fails: block.fails
+           }, outs}
+      end)
+
+    markdown = walkthrough_markdown(entry, rendered)
+
+    %WalkthroughPage{
+      entry: entry,
+      blocks: rendered,
+      markdown: markdown,
+      zip: zip(entry.slug, files, markdown),
+      description: describe([%Source.Segment{doc: first_prose(blocks), code: ""}], entry),
+      uses: Enum.map(entry.uses, &Map.fetch!(by_slug, &1)),
+      edit_url: @repo_tree <> Path.relative_to(dir, @root),
+      prev: prev,
+      next: next
+    }
+  end
 
   defp build_page(%Entry{} = entry, prev, next, raw_output, by_slug) do
     source = File.read!(entry.source_path)
@@ -255,6 +354,68 @@ defmodule Ebe.Build do
     )
   end
 
+  # Commands get a `$` prompt (not part of the copied text: copy.js copies the
+  # script itself); comments are dimmed like Elixir comments.
+  defp sh_html(script) do
+    Enum.map_join(Walkthrough.prompted(script), "\n", fn
+      {:command, text} -> ~s(<span class="prompt">$ </span>) <> escape(text)
+      {:comment, text} -> ~s(<span class="c">) <> escape(text) <> "</span>"
+      {_other, text} -> escape(text)
+    end)
+  end
+
+  defp escape(text), do: text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+
+  defp first_prose(blocks) do
+    Enum.find_value(blocks, "", fn
+      %{kind: :prose, text: text} -> text
+      _ -> nil
+    end)
+  end
+
+  # Elixir files are highlighted like the cells; anything else is shown as is.
+  defp highlight_file(path, code) do
+    if Path.extname(path) in [".ex", ".exs"],
+      do: highlight(code),
+      else: escape(code)
+  end
+
+  # The page as one Markdown document, with every file and every command's
+  # output inlined: the `.md` twin for agents, and the README in the download.
+  defp walkthrough_markdown(entry, blocks) do
+    body =
+      Enum.map_join(blocks, "\n\n", fn
+        %{kind: :prose, text: text} ->
+          String.trim(text)
+
+        %{kind: :file, path: path, code: code} ->
+          lang = if Path.extname(path) in [".ex", ".exs"], do: "elixir", else: ""
+          "`#{path}`:\n\n```#{lang}\n#{code}\n```"
+
+        %{kind: :sh, script: script, output: "", fails: false} ->
+          "```sh\n#{script}\n```\n\n(No output.)"
+
+        %{kind: :sh, script: script, output: output, fails: fails} ->
+          note = if fails, do: " (fails on purpose)", else: ""
+          "```sh\n#{script}\n```\n\nOutput#{note}:\n\n```\n#{output}\n```"
+      end)
+
+    "# #{entry.title}\n\n" <>
+      "Every command below was run when the site was built, on Elixir " <>
+      "#{System.version()} / OTP #{System.otp_release()}; the output is real.\n\n" <>
+      body <> "\n"
+  end
+
+  defp zip(slug, files, readme) do
+    entries =
+      for {rel, content} <- Map.put(files, "README.md", readme) do
+        {String.to_charlist("#{slug}/#{rel}"), content}
+      end
+
+    {:ok, {_name, binary}} = :zip.create(~c"#{slug}.zip", entries, [:memory])
+    binary
+  end
+
   @doc false
   @spec highlight(String.t()) :: String.t()
   def highlight(code), do: Makeup.highlight_inner_html(code, lexer: Makeup.Lexers.ElixirLexer)
@@ -309,7 +470,7 @@ defmodule Ebe.Build do
     """
     # Elixir by Example
 
-    > Small, annotated Elixir programs, each executed on Elixir #{System.version()} / OTP #{System.otp_release()} when the site is built, so code and output are verified. Every page has a plain-source twin: append `.exs` to its URL. The whole site as one file: #{@site}/llms-full.txt
+    > Small, annotated Elixir programs, each executed on Elixir #{System.version()} / OTP #{System.otp_release()} when the site is built, so code and output are verified. Every page has a plain-text twin: append `.exs` to its URL (multi-file projects: `.md`, and `.zip` for the project itself). The whole site as one file: #{@site}/llms-full.txt
 
     Conventions: column-0 `#` comments are explanations; everything else is runnable code. Notes starting with "Pitfall" describe mistakes people and coding agents commonly make.
 
@@ -319,8 +480,11 @@ defmodule Ebe.Build do
 
   defp llms_line(entry, by_url) do
     page = Map.fetch!(by_url, entry.url)
-    "- [#{entry.title}](#{@site}#{entry.url}.exs): #{page.description}"
+    "- [#{entry.title}](#{@site}#{twin(page)}): #{page.description}"
   end
+
+  defp twin(%WalkthroughPage{entry: e}), do: e.url <> ".md"
+  defp twin(%Page{entry: e}), do: e.url <> ".exs"
 
   defp llms_full_txt(tracks, pages, intros) do
     by_url = Map.new(pages, &{&1.entry.url, &1})
@@ -345,9 +509,24 @@ defmodule Ebe.Build do
     """
   end
 
-  defp llms_full_entry(t, e, by_url, _intro_by_track) do
-    page = Map.fetch!(by_url, e.url)
+  defp llms_full_entry(t, e, by_url, intro_by_track) do
+    llms_full_page(t, Map.fetch!(by_url, e.url), intro_by_track)
+  end
 
+  defp llms_full_page(t, %WalkthroughPage{} = page, _intro_by_track) do
+    # The twin starts with its own "# Title" heading; nest it under the track.
+    body = String.replace(page.markdown, ~r/^# .*\n\n/, "")
+
+    """
+    ## #{t.title}: #{page.entry.title}
+
+    Source: #{@site}#{twin(page)} (project: #{@site}#{page.entry.url}.zip)
+
+    #{String.trim(body)}
+    """
+  end
+
+  defp llms_full_page(t, %Page{entry: e} = page, _intro_by_track) do
     """
     ## #{t.title}: #{e.title}
 

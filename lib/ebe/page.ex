@@ -59,3 +59,49 @@ defmodule Ebe.Page do
           next: Entry.t() | nil
         }
 end
+
+defmodule Ebe.WalkthroughPage do
+  @moduledoc """
+  A multi-file example (see `Ebe.Walkthrough`), ready to render: prose, files
+  and commands with their real output, plus its Markdown twin and the project
+  as a `.zip`.
+  """
+
+  alias Ebe.Catalog.Entry
+
+  @type block ::
+          %{kind: :prose, text: String.t(), html: String.t()}
+          | %{kind: :file, path: String.t(), code: String.t(), html: String.t()}
+          | %{
+              kind: :sh,
+              script: String.t(),
+              html: String.t(),
+              output: String.t(),
+              fails: boolean()
+            }
+
+  @enforce_keys [:entry, :blocks, :markdown, :zip, :description, :uses, :edit_url]
+  defstruct [
+    :entry,
+    :blocks,
+    :markdown,
+    :zip,
+    :description,
+    :uses,
+    :edit_url,
+    prev: nil,
+    next: nil
+  ]
+
+  @type t :: %__MODULE__{
+          entry: Entry.t(),
+          blocks: [block()],
+          markdown: String.t(),
+          zip: binary(),
+          description: String.t(),
+          uses: [Entry.t()],
+          edit_url: String.t(),
+          prev: Entry.t() | nil,
+          next: Entry.t() | nil
+        }
+end

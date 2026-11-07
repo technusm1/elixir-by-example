@@ -1,13 +1,26 @@
 defmodule Ebe.Catalog.Entry do
   @moduledoc """
-  One page: a concept example, a project step (both `.exs` files that run), or
-  a project intro (a Markdown file).
+  One page: a concept example or a project step (an `.exs` file that runs, or
+  a walkthrough directory, see `Ebe.Walkthrough`), or a project intro (a
+  Markdown file).
   """
 
   @enforce_keys [:slug, :title, :kind, :track_id, :source_path, :url]
-  defstruct [:slug, :title, :kind, :track_id, :source_path, :url, uses: [], no_run: nil, args: []]
+  defstruct [
+    :slug,
+    :title,
+    :kind,
+    :track_id,
+    :source_path,
+    :url,
+    uses: [],
+    no_run: nil,
+    args: [],
+    format: :script
+  ]
 
   @type kind :: :example | :step | :intro
+  @type format :: :script | :walkthrough
 
   @type t :: %__MODULE__{
           slug: String.t(),
@@ -18,7 +31,8 @@ defmodule Ebe.Catalog.Entry do
           url: String.t(),
           uses: [String.t()],
           no_run: String.t() | nil,
-          args: [String.t()]
+          args: [String.t()],
+          format: format()
         }
 end
 

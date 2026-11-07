@@ -3,8 +3,9 @@ defmodule Ebe.Catalog do
   The single source of truth for what the site contains and in which order.
 
   Every entry maps to a file under `examples/<track>/<slug>.exs` (concept pages)
-  or `projects/<project>/<slug>.exs` (project steps). Everything here is checked
-  at compile time:
+  or `projects/<project>/<slug>.exs` (project steps), or to a directory in the
+  same place holding a multi-file project and its `walkthrough.md` (see
+  `Ebe.Walkthrough`). Everything here is checked at compile time:
 
     * every referenced file must exist (and is tracked as an external resource,
       so editing the catalog or adding files triggers recompilation),
@@ -23,6 +24,9 @@ defmodule Ebe.Catalog do
 
   @no_dist "Needs several connected nodes. Browsers can't open the network sockets " <>
              "Erlang distribution uses, so this one runs on the native BEAM only."
+
+  @no_release "Builds a release with Mix and starts it as separate programs. Browsers " <>
+                "can't run external programs, so this one runs on the native BEAM only."
 
   @tracks [
     %{
@@ -110,8 +114,40 @@ defmodule Ebe.Catalog do
            {"11-libcluster", "Forming the cluster with libcluster",
             uses: ["partitions", "leases"], no_run: @no_dist}
          ]}
+    },
+    %{
+      id: "deployment",
+      title: "Deployment",
+      blurb:
+        "From your laptop to servers: releases, runtime configuration, containers and clusters.",
+      examples: [
+        {"releases", "Releases", no_run: @no_release},
+        {"runtime-config", "Runtime Configuration", no_run: @no_release}
+      ],
+      project:
+        {"kv", "Ship the store",
+         [
+           {"12-a-release", "KV as a release",
+            uses: ["releases", "runtime-config"], no_run: @no_release}
+         ]}
     }
   ]
+
+  # `base` is the path without extension: either `base.exs` exists (a script)
+  # or `base/` is a walkthrough directory.
+  source = fn base, slug, title, opts ->
+    cond do
+      File.regular?(base <> ".exs") ->
+        {slug, title, base <> ".exs", Keyword.put(opts, :format, :script)}
+
+      File.regular?(Path.join(base, Ebe.Walkthrough.walkthrough())) ->
+        {slug, title, base, Keyword.put(opts, :format, :walkthrough)}
+
+      true ->
+        raise CompileError,
+          description: "Ebe.Catalog references missing #{Path.relative_to(base, @root)}(.exs)"
+    end
+  end
 
   tracks =
     for {t, index} <- Enum.with_index(@tracks, 1) do
@@ -123,16 +159,14 @@ defmodule Ebe.Catalog do
               {slug, title, opts} -> {slug, title, opts}
             end
 
-          path = Path.join([@root, "examples", t.id, slug <> ".exs"])
-          {slug, title, path, opts}
+          source.(Path.join([@root, "examples", t.id, slug]), slug, title, opts)
         end
 
       {project_id, project_title, steps} = t.project
 
       steps =
         for {slug, title, opts} <- steps do
-          path = Path.join([@root, "projects", project_id, slug <> ".exs"])
-          {slug, title, path, opts}
+          source.(Path.join([@root, "projects", project_id, slug]), slug, title, opts)
         end
 
       # Each project chapter opens with an intro page written in Markdown:
@@ -141,12 +175,22 @@ defmodule Ebe.Catalog do
 
       all = examples ++ steps
 
-      for path <- [intro | Enum.map(all, &elem(&1, 2))] do
-        @external_resource path
+      unless File.regular?(intro) do
+        raise CompileError,
+          description: "Ebe.Catalog references missing file #{Path.relative_to(intro, @root)}"
+      end
 
-        unless File.regular?(path) do
-          raise CompileError,
-            description: "Ebe.Catalog references missing file #{Path.relative_to(path, @root)}"
+      @external_resource intro
+
+      for {_, _, path, opts} <- all do
+        case opts[:format] do
+          :script ->
+            @external_resource path
+
+          :walkthrough ->
+            for rel <- [Ebe.Walkthrough.walkthrough() | Ebe.Walkthrough.files(path)] do
+              @external_resource Path.join(path, rel)
+            end
         end
       end
 
@@ -227,14 +271,24 @@ defmodule Ebe.Catalog do
     end)
   end
 
-  @doc "Files on disk under `examples/` or `projects/` that are not in the catalog."
+  @doc """
+  Examples on disk under `examples/` or `projects/` (`.exs` files and
+  walkthrough directories) that are not in the catalog.
+  """
   @spec unregistered_files() :: [String.t()]
   def unregistered_files do
-    on_disk =
+    walkthrough_dirs =
+      Path.wildcard(Path.join(@root, "{examples,projects}/**/" <> Ebe.Walkthrough.walkthrough()))
+      |> Enum.map(&(&1 |> Path.dirname() |> Path.relative_to(@root)))
+
+    scripts =
       Path.wildcard(Path.join(@root, "{examples,projects}/**/*.exs"))
       |> Enum.map(&Path.relative_to(&1, @root))
+      |> Enum.reject(fn path ->
+        Enum.any?(walkthrough_dirs, &String.starts_with?(path, &1 <> "/"))
+      end)
 
-    on_disk -- @registered_paths
+    (walkthrough_dirs ++ scripts) -- @registered_paths
   end
 
   defp entry({slug, title, path, opts}, t, kind) do
@@ -254,6 +308,7 @@ defmodule Ebe.Catalog do
       url: url,
       uses: Keyword.get(opts, :uses, []),
       no_run: Keyword.get(opts, :no_run),
+      format: Keyword.get(opts, :format, :script),
       args: Keyword.get(opts, :args, [])
     }
   end

@@ -180,7 +180,7 @@ function withHeaders(asset, pathname) {
 function classifyRequest(pathname, status) {
   if (status === 404) return "notfound";
   if (status !== 200) return null;
-  if (pathname.endsWith(".exs") || pathname.endsWith(".md")) return "raw";
+  if (/\.(exs|md|zip)$/.test(pathname)) return "raw";
   if (pathname === "/llms.txt" || pathname === "/llms-full.txt") return "llms";
   if (pathname === "/" || !/\.[a-z0-9]+$/i.test(pathname)) return "page";
   return null; // assets: css, js, popcorn runtime, favicon, sitemap...

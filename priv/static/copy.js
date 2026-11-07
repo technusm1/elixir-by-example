@@ -5,10 +5,13 @@ const ICON_MS = 1500;
 
 async function copy(btn) {
   const cell = btn.closest(".cell");
+  // Code: the cell as edited, or a shell block's script (without the $ prompts).
   const text =
-    btn.dataset.copy === "code"
-      ? (cell.querySelector("textarea.cell-edit")?.value ?? cell.querySelector("pre.code").textContent)
-      : cell.querySelector(".cell-out").textContent;
+    btn.dataset.copy === "output"
+      ? cell.querySelector(".cell-out").textContent
+      : (cell.querySelector("textarea.cell-edit")?.value ??
+        cell.dataset.source ??
+        cell.querySelector("pre.code").textContent);
   try {
     await navigator.clipboard.writeText(text.replace(/\s+$/, "") + "\n");
     btn.classList.add("done");

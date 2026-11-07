@@ -116,7 +116,7 @@ main.home { max-width: 56rem; margin: 0 auto; padding: 3rem 1.25rem 0; }
 .track-card h2 { margin: 0.1rem 0 0.3rem; font-size: 1.35rem; }
 .track-card header p { margin: 0; color: var(--muted); }
 .topics { columns: 2; column-gap: 2rem; margin: 1.25rem 0 0; padding-left: 1.5rem; color: var(--muted); font-size: 0.95rem; }
-.topics li { margin: 0.2rem 0; break-inside: avoid; }
+.topics li { margin: 0 0 0.4rem; break-inside: avoid; }
 .topics a { text-decoration: none; }
 .topics a:hover { text-decoration: underline; }
 .project { margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px dashed var(--rule); }
@@ -320,4 +320,20 @@ main.intro .prose h2 { margin-top: 1.6rem; }
   .cell-out::before { margin-bottom: 0.75rem; }
   .out-area .copy { top: 0.4rem; }
   .track-card { padding: 1.25rem; }
+}
+
+/* walkthroughs: project files and shell sessions */
+.file-name {
+  padding: 0.55rem 3.2rem 0.55rem 1.1rem; border-bottom: 1px solid var(--code-rule);
+  font: 600 0.78rem var(--mono); color: var(--t-punct);
+}
+.file-cell .cell-body > .copy { top: 0.3rem; }
+pre.code.sh { padding-right: 3.2rem; }
+pre.code.sh .prompt { color: var(--t-com); user-select: none; }
+pre.code.sh .c { color: var(--t-com); font-style: italic; }
+.cell-out.failed::before { content: "output · fails on purpose"; color: var(--t-num); }
+.sh-cell .cell-out.quiet::before { content: "no output"; }
+@media (max-width: 720px) {
+  .file-cell .cell-body::before { display: none; }
+  .file-cell pre.ln, .file-cell pre.code { padding-top: 0.95rem; }
 }

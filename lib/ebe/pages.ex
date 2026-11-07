@@ -8,7 +8,7 @@ defmodule Ebe.Pages do
   use Phoenix.Component
 
   alias Ebe.Catalog.{Entry, Track}
-  alias Ebe.Page
+  alias Ebe.{Page, WalkthroughPage}
   alias Phoenix.HTML.Safe
   alias Phoenix.LiveView.Rendered
 
@@ -135,9 +135,10 @@ defmodule Ebe.Pages do
           <header>
             <span class="track-no">{String.pad_leading("#{length(@tracks) + 1}", 2, "0")}</span>
             <div>
-              <h2>Deployment <span class="tag">coming next</span></h2>
+              <h2>Production <span class="tag">coming next</span></h2>
               <p>
-                Releases, containers and Kubernetes: running a cluster in production.
+                Running it: remote shells, tracing, hot code reloading, and letting coding
+                agents debug a live system safely.
               </p>
             </div>
           </header>
@@ -250,7 +251,7 @@ defmodule Ebe.Pages do
     """
   end
 
-  attr :what, :string, required: true, values: ["code", "output"]
+  attr :what, :string, required: true, values: ["code", "commands", "output"]
 
   defp copy_button(assigns) do
     ~H"""
@@ -288,6 +289,103 @@ defmodule Ebe.Pages do
   defp line_numbers(seg) do
     count = seg.code |> String.split("\n") |> length()
     Enum.join(seg.line..(seg.line + count - 1)//1, "\n")
+  end
+
+  attr :page, WalkthroughPage, required: true
+  attr :track, Track, required: true
+  attr :tracks, :list, required: true
+  attr :css, :string, required: true
+  attr :runtime, :string, default: nil, doc: "unused: walkthroughs never run in the browser"
+
+  def walkthrough(assigns) do
+    ~H"""
+    <.layout
+      title={"#{@page.entry.title} · Elixir by Example"}
+      description={@page.description}
+      path={@page.entry.url}
+      css={@css}
+      tracks={@tracks}
+      scripts={["/copy.js"]}
+    >
+      <main class="example">
+        <nav class="crumbs">
+          <a href={"/##{@track.id}"}>{@track.title}</a>
+          <span :if={@page.entry.kind == :step}>
+            › <a href={@track.intro.url}><span class="tag">Project</span> {@track.project_title}</a>
+          </span>
+        </nav>
+        <h1>{@page.entry.title}</h1>
+        <p :if={@page.uses != []} class="uses">
+          Builds on <a :for={u <- @page.uses} href={u.url} class="chip">{u.title}</a>
+        </p>
+
+        <div class="notebook">
+          <div class="nb-bar">
+            <span class="nb-hint">Every command ran when the site was built; the output is real</span>
+            <span class="nb-status"></span>
+            <a
+              class="btn"
+              href={@page.entry.url <> ".zip"}
+              download={Path.basename(@page.entry.url) <> ".zip"}
+              title="The project's files, with this page as its README"
+            >
+              Download project
+            </a>
+          </div>
+
+          <section :for={block <- @page.blocks} class="step">
+            <.walkthrough_block block={block} />
+          </section>
+        </div>
+
+        <.pager prev={@page.prev} next={@page.next} />
+        <p class="edit-link"><a href={@page.edit_url}>Improve this page on GitHub</a></p>
+      </main>
+    </.layout>
+    """
+  end
+
+  attr :block, :map, required: true
+
+  defp walkthrough_block(%{block: %{kind: :prose}} = assigns) do
+    ~H"""
+    <div class="prose">{Phoenix.HTML.raw(@block.html)}</div>
+    """
+  end
+
+  defp walkthrough_block(%{block: %{kind: :file}} = assigns) do
+    count = assigns.block.code |> String.split("\n") |> length()
+    assigns = assign(assigns, count: count, digits: count |> Integer.digits() |> length())
+
+    ~H"""
+    <div class="cell file-cell" style={"--ln-digits: #{@digits}"}>
+      <div class="cell-body">
+        <div class="file-name">{@block.path}</div>
+        <.copy_button what="code" />
+        <div class="code-wrap">
+          <pre class="ln" aria-hidden="true">{Enum.join(1..@count, "\n")}</pre>
+          <div class="code-area">
+            <pre class="code"><code>{Phoenix.HTML.raw(@block.html)}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  defp walkthrough_block(%{block: %{kind: :sh}} = assigns) do
+    ~H"""
+    <div class="cell sh-cell" data-source={@block.script}>
+      <div class="cell-body">
+        <.copy_button what="commands" />
+        <pre class="code sh"><code>{Phoenix.HTML.raw(@block.html)}</code></pre>
+        <div class="out-area">
+          <.copy_button what="output" />
+          <pre class={["cell-out", @block.fails && "failed", @block.output == "" && "quiet"]}><code>{@block.output}</code></pre>
+        </div>
+      </div>
+    </div>
+    """
   end
 
   attr :entry, Entry, required: true

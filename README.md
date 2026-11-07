@@ -32,6 +32,8 @@ Before pushing: `mix check` (format, warnings-as-errors, credo, dialyzer, tests,
 1. Create `examples/<track>/<slug>.exs`. Column-0 `# ` comments are Markdown prose shown next to the code that follows. Everything else, including indented comments, is code.
 2. End with `# > **Pitfall:** ...` notes for mistakes people and coding agents commonly make.
 3. Register it in `lib/ebe/catalog.ex`. A missing file or unknown slug is a compile error.
+
+Pages about whole projects (releases, deployment) are directories instead: `examples/<track>/<slug>/` with the project's real files and a `walkthrough.md` whose ` ```file <path>``` ` blocks show files and whose ` ```sh``` ` blocks run at build time in one shell session. See `Ebe.Walkthrough`.
 4. If it can't run in a browser (distribution, sockets, OS processes), add `no_run: "reason"`. The reason becomes the disabled Run button's tooltip.
 
 Output must be deterministic: no pids, refs or timings in output, no races.
@@ -39,8 +41,8 @@ Output must be deterministic: no pids, refs or timings in output, no races.
 ## Layout
 
 ```
-examples/<track>/*.exs   concept pages
-projects/<name>/*.exs    project steps
+examples/<track>/*.exs   concept pages (or <slug>/ walkthrough directories)
+projects/<name>/*.exs    project steps (or <slug>/ walkthrough directories)
 lib/ebe/                 generator: catalog, parser, runner, HEEx pages, build
 runner/                  Popcorn app evaluating code in the browser
 priv/static/             site.css (inlined), run.js, copy.js, icons (tools/icon/make_icons.swift)
