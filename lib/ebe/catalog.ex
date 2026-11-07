@@ -94,13 +94,21 @@ defmodule Ebe.Catalog do
          args: ["--name", "nodes@127.0.0.1"], no_run: @no_dist},
         {"global", "Global Names with :global",
          args: ["--name", "global@127.0.0.1"], no_run: @no_dist},
-        {"pg", "Process Groups with :pg", args: ["--name", "pg@127.0.0.1"], no_run: @no_dist}
+        {"pg", "Process Groups with :pg", args: ["--name", "pg@127.0.0.1"], no_run: @no_dist},
+        {"partitions", "Partitions and Split Brain", no_run: @no_dist},
+        {"leases", "Leases and Fencing Tokens", no_run: @no_dist}
       ],
       project:
         {"kv", "Spread the store across nodes",
          [
            {"08-replicated-buckets", "Replicated buckets",
-            uses: ["nodes", "pg"], args: ["--name", "kv08@127.0.0.1"], no_run: @no_dist}
+            uses: ["nodes", "pg"], args: ["--name", "kv08@127.0.0.1"], no_run: @no_dist},
+           {"09-catching-up", "Catching up new nodes",
+            uses: ["pg"], args: ["--name", "kv09@127.0.0.1"], no_run: @no_dist},
+           {"10-mnesia", "Replicated tables with Mnesia",
+            uses: ["nodes"], args: ["--name", "kv10@127.0.0.1"], no_run: @no_dist},
+           {"11-libcluster", "Forming the cluster with libcluster",
+            uses: ["partitions", "leases"], no_run: @no_dist}
          ]}
     }
   ]

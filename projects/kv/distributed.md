@@ -9,10 +9,16 @@ with Erlang/OTP:
 1. **Replicate writes.** Every node runs a replica; replicas find each other
    through a `:pg` group; a write goes to all of them and reads are served
    locally. Lose a node and the others still have the data.
+2. **Catch up new nodes.** A node that joins copies a snapshot from an
+   existing replica, joining the group first so no new write passes it by.
+   A small gap remains, and it shows why this is hard to do by hand.
+3. **Use Mnesia.** Erlang's built-in database keeps a table on several
+   nodes, writes to every copy in a transaction, and copies the table to a
+   new node safely.
 
-Coming next in this chapter, once the first part has had feedback:
-bringing a new node up to date, Mnesia's replicated tables, network
-partitions, and forming clusters automatically with `libcluster`.
+4. **Form the cluster with libcluster.** Nodes find and connect to each
+   other on their own, and reconnect after a dropped connection. libcluster
+   is a Hex package, so this step installs it with `Mix.install/1`.
 
 ## Running these examples
 
@@ -29,4 +35,5 @@ elixir --name kv08@127.0.0.1 08-replicated-buckets.exs
 ```
 
 The script starts the other nodes it needs with OTP's `:peer` module, so one
-command is enough.
+command is enough. Step 11 stays outside the cluster it builds, so it needs
+no node name: `elixir 11-libcluster.exs`.
