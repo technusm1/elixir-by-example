@@ -152,13 +152,13 @@ defmodule Ebe.Build do
     |> Enum.map(fn {:ok, result} -> result end)
   end
 
-  # Runs the instrumented program (cell markers added) once; the raw output,
+  # Runs the program (code cells only, cell markers added) once; the raw output,
   # markers included, is cached and later split per cell.
   defp cached_run(%Entry{source_path: path, args: args}) do
-    source = path |> File.read!() |> instrumented()
+    source = path |> File.read!() |> program()
 
     key =
-      :crypto.hash(:sha256, ["v3", source, args, System.version(), System.otp_release()])
+      :crypto.hash(:sha256, ["v4", source, args, System.version(), System.otp_release()])
       |> Base.url_encode64(padding: false)
 
     cache = Path.join(@cache_dir, key)
@@ -177,23 +177,29 @@ defmodule Ebe.Build do
 
   ## Pages
 
-  defp instrumented(source), do: Source.instrument(source, Source.segments(source))
+  defp program(source), do: source |> Source.segments() |> Source.program()
 
   defp build_page(%Entry{} = entry, prev, next, raw_output, by_slug) do
     source = File.read!(entry.source_path)
     segments = Source.segments(source)
     cell_outputs = Source.split_output(raw_output)
 
+    # Cells are numbered from 1, and so are the program's lines (see
+    # `Source.program/1`).
     {rendered, _} =
-      Enum.map_reduce(segments, 1, fn
-        %{line: nil} = seg, n -> {render_segment(seg, nil, nil), n}
-        seg, n -> {render_segment(seg, n, Map.get(cell_outputs, n, "")), n + 1}
+      Enum.map_reduce(segments, {1, 1}, fn
+        %{line: nil} = seg, acc ->
+          {render_segment(seg, nil, nil, nil), acc}
+
+        seg, {n, line} ->
+          rendered = render_segment(seg, n, line, Map.get(cell_outputs, n, ""))
+          {rendered, {n + 1, line + length(String.split(seg.code, "\n"))}}
       end)
 
     %Page{
       entry: entry,
       source: source,
-      program: instrumented(source),
+      program: program(source),
       segments: rendered,
       output: raw_output |> Source.strip_markers() |> String.trim_trailing(),
       description: describe(segments, entry),
@@ -228,7 +234,7 @@ defmodule Ebe.Build do
     }
   end
 
-  defp render_segment(%Source.Segment{doc: doc, code: code, line: line}, cell, output) do
+  defp render_segment(%Source.Segment{doc: doc, code: code}, cell, line, output) do
     %Page.Segment{
       line: line,
       doc_html: if(doc == "", do: "", else: markdown(doc)),

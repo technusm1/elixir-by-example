@@ -13,9 +13,11 @@ defmodule Ebe.Source do
   A segment may have prose without code (a paragraph that introduces the next
   idea) or code without prose.
 
-  `instrument/2` marks where each cell's code starts so a single run of the
-  whole program can be split into per-cell output, without shifting line
-  numbers (the marker shares the cell's first line).
+  `program/1` joins the code cells, without the prose, into the program that
+  is run at build time and in the browser. Its lines are numbered straight
+  through from 1, as the page shows them, and a marker at the start of each
+  cell lets a single run be split into per-cell output (the marker shares the
+  cell's first line, so line numbers don't shift).
   """
 
   defmodule Segment do
@@ -51,28 +53,22 @@ defmodule Ebe.Source do
   end
 
   @doc """
-  Returns `source` with a marker written at the start of every code cell. The
-  marker is prepended to the cell's first code line, so line numbers in errors
-  stay identical to the original file. Cells are numbered from 1 in the order
-  `segments/1` returns code-bearing segments.
+  The code cells of `segments`, one after another with no prose or blank lines
+  between them, each starting with its cell marker. Cells are numbered from 1
+  in the order `segments/1` returns code-bearing segments.
+
+      iex> Ebe.Source.program(Ebe.Source.segments("# Hi\\nIO.puts(1)\\n# Bye\\nIO.puts(2)\\n"))
+      ~s|IO.write("\\\\u001E1\\\\u001E"); IO.puts(1)\\nIO.write("\\\\u001E2\\\\u001E"); IO.puts(2)\\n|
   """
-  @spec instrument(String.t(), [Segment.t()]) :: String.t()
-  def instrument(source, segments) do
-    starts =
+  @spec program([Segment.t()]) :: String.t()
+  def program(segments) do
+    cells =
       segments
       |> Enum.filter(& &1.line)
       |> Enum.with_index(1)
-      |> Map.new(fn {seg, i} -> {seg.line, i} end)
+      |> Enum.map_join("\n", fn {seg, n} -> marker_call(n) <> seg.code end)
 
-    source
-    |> String.split(["\r\n", "\n"])
-    |> Enum.with_index(1)
-    |> Enum.map_join("\n", fn {line, n} ->
-      case starts do
-        %{^n => cell} -> marker_call(cell) <> line
-        _ -> line
-      end
-    end)
+    cells <> "\n"
   end
 
   @doc "The Elixir statement that announces cell `n` on stdout."

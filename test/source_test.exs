@@ -53,12 +53,15 @@ defmodule Ebe.SourceTest do
       assert [%Segment{line: 2}, %Segment{line: 5}] = Source.segments(@source)
     end
 
-    test "instrument keeps line numbers and marks each cell" do
-      instrumented = Source.instrument(@source, Source.segments(@source))
-      lines = String.split(instrumented, "\n")
-      assert length(lines) == length(String.split(@source, "\n"))
-      assert Enum.at(lines, 1) == Source.marker_call(1) <> "IO.puts(1)"
-      assert Enum.at(lines, 4) == Source.marker_call(2) <> "x = 2"
+    test "program drops the prose, numbers lines straight through and marks each cell" do
+      lines = @source |> Source.segments() |> Source.program() |> String.split("\n")
+
+      assert lines == [
+               Source.marker_call(1) <> "IO.puts(1)",
+               Source.marker_call(2) <> "x = 2",
+               "IO.puts(x)",
+               ""
+             ]
     end
 
     test "split_output routes text to cells and strip_markers removes markers" do

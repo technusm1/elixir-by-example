@@ -161,7 +161,7 @@ defmodule Ebe.Pages do
       path={@page.entry.url}
       css={@css}
       tracks={@tracks}
-      scripts={if @page.entry.no_run, do: [], else: ["/run.js"]}
+      scripts={if @page.entry.no_run, do: ["/copy.js"], else: ["/copy.js", "/run.js"]}
     >
       <main class="example">
         <nav class="crumbs">
@@ -175,7 +175,12 @@ defmodule Ebe.Pages do
           Builds on <a :for={u <- @page.uses} href={u.url} class="chip">{u.title}</a>
         </p>
 
-        <div class="notebook" data-file={@page.entry.slug <> ".exs"} data-runtime={@runtime}>
+        <div
+          class="notebook"
+          data-file={@page.entry.slug <> ".exs"}
+          data-runtime={@runtime}
+          style={"--ln-digits: #{ln_digits(@page)}"}
+        >
           <div class="nb-bar">
             <span class="nb-hint">
               <%= cond do %>
@@ -213,16 +218,25 @@ defmodule Ebe.Pages do
                 >
                   {if seg.cell == 1, do: "▶ Run", else: "▶ Run to here"}
                 </button>
-                <pre class="code"><code>{Phoenix.HTML.raw(seg.code_html)}</code></pre>
-                <textarea
-                  :if={!@page.entry.no_run}
-                  class="cell-edit"
-                  spellcheck="false"
-                  autocapitalize="off"
-                  autocomplete="off"
-                  aria-label={"Code of cell #{seg.cell}"}
-                >{seg.code}</textarea>
-                <pre class={["cell-out", seg.output in [nil, ""] && "empty"]}><code>{seg.output}</code></pre>
+                <.copy_button what="code" />
+                <div class="code-wrap">
+                  <pre class="ln" aria-hidden="true">{line_numbers(seg)}</pre>
+                  <div class="code-area">
+                    <pre class="code"><code>{Phoenix.HTML.raw(seg.code_html)}</code></pre>
+                    <textarea
+                      :if={!@page.entry.no_run}
+                      class="cell-edit"
+                      spellcheck="false"
+                      autocapitalize="off"
+                      autocomplete="off"
+                      aria-label={"Code of cell #{seg.cell}"}
+                    >{seg.code}</textarea>
+                  </div>
+                </div>
+                <div class="out-area">
+                  <.copy_button what="output" />
+                  <pre class={["cell-out", seg.output in [nil, ""] && "empty"]}><code>{seg.output}</code></pre>
+                </div>
               </div>
             </div>
           </section>
@@ -234,6 +248,46 @@ defmodule Ebe.Pages do
       </main>
     </.layout>
     """
+  end
+
+  attr :what, :string, required: true, values: ["code", "output"]
+
+  defp copy_button(assigns) do
+    ~H"""
+    <button
+      type="button"
+      class="copy"
+      data-copy={@what}
+      title={"Copy #{@what}"}
+      aria-label={"Copy #{@what}"}
+    >
+      <svg class="i-copy" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+        <rect x="8" y="3" width="8" height="4" rx="1" />
+        <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2" />
+      </svg>
+      <svg class="i-done" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+    </button>
+    """
+  end
+
+  # Every cell's gutter is as wide as the widest line number on the page, so
+  # code lines up across cells.
+  defp ln_digits(page) do
+    page.segments
+    |> Enum.filter(& &1.cell)
+    |> Enum.map(fn seg -> seg.line + length(String.split(seg.code, "\n")) - 1 end)
+    |> Enum.max(fn -> 1 end)
+    |> Integer.digits()
+    |> length()
+  end
+
+  # The cell's line numbers in the program (code cells only, numbered straight
+  # through from 1), so they match compiler errors.
+  defp line_numbers(seg) do
+    count = seg.code |> String.split("\n") |> length()
+    Enum.join(seg.line..(seg.line + count - 1)//1, "\n")
   end
 
   attr :entry, Entry, required: true

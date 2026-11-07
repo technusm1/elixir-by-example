@@ -43,7 +43,7 @@ examples/<track>/*.exs   concept pages
 projects/<name>/*.exs    project steps
 lib/ebe/                 generator: catalog, parser, runner, HEEx pages, build
 runner/                  Popcorn app evaluating code in the browser
-priv/static/             site.css (inlined), run.js, icons (tools/icon/make_icons.swift)
+priv/static/             site.css (inlined), run.js, copy.js, icons (tools/icon/make_icons.swift)
 worker/                  Cloudflare Worker: headers, redirects, Brotli runtime, analytics (D1)
 tools/                   browser verification, analytics report
 ```

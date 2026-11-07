@@ -24,6 +24,7 @@ const cells = $$(".cell[data-cell]").map((el, i) => {
     el,
     line: Number(el.dataset.line),
     pre: $("pre.code", el),
+    ln: $("pre.ln", el),
     ta: $("textarea.cell-edit", el),
     btn: $(".cell-run", el),
     out,
@@ -32,6 +33,26 @@ const cells = $$(".cell[data-cell]").map((el, i) => {
     src: $("textarea.cell-edit", el).value,
   };
 });
+
+// Line numbers run straight through the cells from 1, the way the program
+// joins them, so they match compiler errors.
+const lineCount = (text) => text.split("\n").length;
+
+function lineStarts() {
+  const starts = [1];
+  cells.slice(0, -1).forEach((c, i) => starts.push(starts[i] + lineCount(c.ta.value)));
+  return starts;
+}
+
+function renumber() {
+  const starts = lineStarts();
+  cells.forEach((c, i) => {
+    const text = Array.from({ length: lineCount(c.ta.value) }, (_, k) => starts[i] + k).join("\n");
+    if (c.ln.textContent !== text) c.ln.textContent = text;
+  });
+  const last = cells.at(-1);
+  notebook.style.setProperty("--ln-digits", String(starts.at(-1) + lineCount(last.ta.value) - 1).length);
+}
 
 // ------------------------------------------------------------ highlighting
 // A small Elixir tokenizer. Class names match the ones Makeup emits at build
@@ -75,6 +96,7 @@ function fit(cell) {
 function onEdit(cell) {
   cell.pre.firstElementChild.innerHTML = cell.ta.value ? highlight(cell.ta.value) : "";
   fit(cell);
+  renumber();
   resetBtn.hidden = !isDirty();
 }
 
@@ -87,6 +109,7 @@ function reset() {
     cell.out.classList.remove("live", "stale", "quiet");
     fit(cell);
   }
+  renumber();
   resetBtn.hidden = true;
   setStatus("");
 }
@@ -201,7 +224,7 @@ async function updatePopup(cell) {
   const col = lines.at(-1).length - prefix.length;
   popup.style.left = `${parseFloat(style.paddingLeft) + col * charWidth - ta.scrollLeft}px`;
   popup.style.top = `${parseFloat(style.paddingTop) + lines.length * lineHeight}px`;
-  cell.el.querySelector(".cell-body").appendChild(popup);
+  ta.parentElement.appendChild(popup);
   popup.hidden = false;
 }
 
@@ -306,16 +329,12 @@ function route(chunk, cls) {
 
 // The unedited page runs the exact program verified at build time. Returns the
 // code plus each cell's first line in it, to place compiler diagnostics.
+// Otherwise the cells are joined the same way, so every line keeps the number
+// shown next to it.
 function source(upTo) {
   if (upTo === cells.length && !isDirty()) return { code: program, starts: cells.map((c) => c.line) };
-  const starts = [];
-  let line = 1;
-  const parts = cells.slice(0, upTo).map((c) => {
-    starts.push(line);
-    line += c.ta.value.split("\n").length + 1; // cells are joined by a blank line
-    return `IO.write("\\u001E${c.n}\\u001E"); ${c.ta.value}`;
-  });
-  return { code: parts.join("\n\n"), starts };
+  const parts = cells.slice(0, upTo).map((c) => `IO.write("\\u001E${c.n}\\u001E"); ${c.ta.value}`);
+  return { code: parts.join("\n") + "\n", starts: lineStarts().slice(0, upTo) };
 }
 
 function showDiagnostics(diagnostics, starts) {

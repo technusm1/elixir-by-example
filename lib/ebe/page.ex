@@ -6,7 +6,8 @@ defmodule Ebe.Page do
   defmodule Segment do
     @moduledoc """
     A rendered prose/code pair. `cell` numbers code cells from 1 (nil for
-    prose-only segments), `line` is the cell's first line in the source file,
+    prose-only segments), `line` is the cell's first line in the program
+    (code cells joined without prose, numbered from 1),
     and `output` is what that cell printed.
     """
     @enforce_keys [:doc_html, :code_html, :code, :cell, :line, :output]

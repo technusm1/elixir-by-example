@@ -188,10 +188,17 @@ main.example h1 { font-size: clamp(1.8rem, 4vw, 2.3rem); margin: 0.4rem 0 0.75re
 }
 .cell-body { border-radius: var(--radius); box-shadow: var(--shadow); background: var(--code-bg); border: 1px solid var(--code-rule); }
 /* no overflow:hidden on the cell (it would clip autocomplete), so round the parts */
-pre.code { border-radius: var(--radius) var(--radius) 0 0; }
 .cell-out { border-radius: 0 0 var(--radius) var(--radius); }
-.cell-body:has(.cell-out.empty) pre.code { border-radius: var(--radius); }
-pre.code, textarea.cell-edit { margin: 0; padding: 0.95rem 1.1rem; font-size: 13.5px; line-height: 1.6; color: var(--code-fg); background: var(--code-bg); overflow-x: auto; tab-size: 2; }
+/* line numbers in their own column, so code scrolls sideways without them */
+.code-wrap { display: flex; }
+.code-area { position: relative; flex: 1; min-width: 0; }
+pre.ln, pre.code, textarea.cell-edit { margin: 0; padding: 0.95rem 1.1rem; font-size: 13.5px; line-height: 1.6; }
+pre.code, textarea.cell-edit { color: var(--code-fg); background: transparent; overflow-x: auto; tab-size: 2; }
+pre.code { border-top-right-radius: var(--radius); }
+pre.ln {
+  flex: none; box-sizing: content-box; padding-right: 0; min-width: calc(var(--ln-digits, 2) * 1ch); text-align: right;
+  color: var(--t-com); opacity: 0.6; user-select: none;
+}
 /* editing: a transparent textarea over the highlighted code */
 textarea.cell-edit {
   position: absolute; top: 0; left: 0; width: 100%;
@@ -202,7 +209,7 @@ textarea.cell-edit::selection { background: rgba(168,136,224,.35); color: transp
 .cell-body { position: relative; }
 .cell-body:focus-within { box-shadow: var(--shadow), 0 0 0 2px var(--accent-2); }
 .cell-run {
-  position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2;
+  position: absolute; top: 0.6rem; right: 2.75rem; z-index: 2;
   padding: 0.3rem 0.7rem; border-radius: 999px;
   border: 1px solid var(--code-rule); background: #2a2238; color: var(--t-str);
   font: 600 0.72rem var(--sans); cursor: pointer; opacity: 0.8;
@@ -225,6 +232,21 @@ textarea.cell-edit::placeholder { color: var(--t-com); font-style: italic; }
 .ac b { font-weight: 500; }
 .ac span { color: var(--t-com); }
 .ac li.on span { color: #e8dcff; }
+/* copy buttons, top right of code and of output */
+.out-area { position: relative; }
+.out-area:has(.cell-out.empty, .cell-out.quiet) .copy { display: none; }
+.copy {
+  position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2;
+  display: grid; place-items: center; width: 1.85rem; height: 1.6rem; padding: 0;
+  border-radius: 7px; border: 1px solid var(--code-rule); background: #2a2238;
+  color: var(--t-punct); cursor: pointer; opacity: 0.75;
+}
+.out-area .copy { top: 0.45rem; background: var(--out-bg); }
+.copy:hover, .copy:focus-visible { opacity: 1; color: #fff; border-color: var(--accent); }
+.copy svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.copy .i-done, .copy.done .i-copy { display: none; }
+.copy.done .i-done { display: block; }
+.copy.done { opacity: 1; color: var(--t-str); border-color: var(--t-str); }
 .cell-out {
   margin: 0; padding: 0.7rem 1.1rem 0.8rem; font-size: 13px; line-height: 1.55;
   color: var(--out-fg); background: var(--out-bg);
@@ -287,6 +309,15 @@ main.intro .prose h2 { margin-top: 1.6rem; }
   .step { padding-left: 0; }
   .step::before, .cell-no { display: none; }
   .nb-hint { display: none; }
-  .cell-run { opacity: 1; }
+  .cell-run, .copy { opacity: 1; }
+  /* the buttons get a slim bar of their own, so they never cover code */
+  .cell-body::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 2.6rem;
+    border-top: 1px solid var(--code-rule);
+  }
+  .cell-run, .cell-body > .copy { top: 0.5rem; }
+  pre.ln, pre.code, textarea.cell-edit { padding-top: 3.4rem; }
+  .cell-out::before { margin-bottom: 0.75rem; }
+  .out-area .copy { top: 0.4rem; }
   .track-card { padding: 1.25rem; }
 }
