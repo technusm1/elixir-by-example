@@ -1,0 +1,151 @@
+/* Elixir by Example. One small stylesheet, inlined into every page. */
+:root {
+  --bg: #fff;
+  --fg: #252519;
+  --muted: #6b6b60;
+  --rule: #e6e6e0;
+  --link: #5b3a8c;
+  --code-bg: #f4f2f8;
+  --out-bg: #f7f7f4;
+  --accent: #6e4a9e;
+  --accent-fg: #fff;
+  --callout: #b5651d;
+  /* syntax */
+  --t-kw: #8b2f8b;
+  --t-str: #2a7a3a;
+  --t-atom: #1f5fa8;
+  --t-num: #b05a00;
+  --t-com: #8a8a80;
+  --t-mod: #6e4a9e;
+  --t-fn: #252519;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17161c;
+    --fg: #e4e2ea;
+    --muted: #9a97a6;
+    --rule: #2c2a35;
+    --link: #b9a2ec;
+    --code-bg: #201e28;
+    --out-bg: #1c1b22;
+    --accent: #8e6cc8;
+    --accent-fg: #fff;
+    --callout: #e3a05a;
+    --t-kw: #e08ee0;
+    --t-str: #8fd19e;
+    --t-atom: #8ab8f0;
+    --t-num: #f0b070;
+    --t-com: #77748a;
+    --t-mod: #c4aef0;
+    --t-fn: #e4e2ea;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 var(--sans);
+}
+
+main { max-width: 64rem; margin: 0 auto; padding: 2rem 1rem 3rem; }
+main.index { max-width: 38rem; }
+
+a { color: var(--link); }
+h1 { font-size: 1.6rem; margin: 0 0 1rem; line-height: 1.25; }
+h2 { font-size: 1.15rem; margin: 2rem 0 0.25rem; }
+h3 { font-size: 1rem; margin: 1rem 0 0.25rem; }
+.blurb, .crumbs, .uses, footer { color: var(--muted); }
+.crumbs { font-size: 0.85rem; margin-bottom: 0.5rem; }
+.crumbs a { color: inherit; }
+
+.track ul, .track ol { margin: 0.25rem 0; padding-left: 1.25rem; }
+.track li { margin: 0.1rem 0; }
+
+.uses a::after { content: ","; color: var(--muted); }
+.uses a:last-child::after { content: ""; }
+
+code, pre { font-family: var(--mono); font-size: 13px; }
+p code, li code { background: var(--code-bg); padding: 0.05em 0.3em; border-radius: 3px; }
+
+/* side-by-side prose and code, like gobyexample */
+table.segments { border-collapse: collapse; width: 100%; }
+.segments td { vertical-align: top; padding: 0; }
+.segments td.doc { width: 38%; padding: 0.6rem 1.25rem 0.6rem 0; }
+.segments td.doc p { margin: 0 0 0.5rem; }
+.segments td.code { background: var(--code-bg); }
+.segments td.code.empty { background: transparent; }
+.segments pre { margin: 0; padding: 0.6rem 0.9rem; overflow-x: auto; }
+.segments tr:first-child td.code { border-top-left-radius: 6px; border-top-right-radius: 6px; }
+
+blockquote {
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.1rem 0 0.1rem 0.75rem;
+  border-left: 3px solid var(--callout);
+  font-size: 0.93rem;
+}
+blockquote p { margin: 0.25rem 0; }
+blockquote strong { color: var(--callout); }
+
+/* output + run */
+.run { margin-top: 1.25rem; }
+.toolbar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+.cmd { font-family: var(--mono); font-size: 13px; color: var(--muted); flex: 1; }
+.runbtn {
+  font: 600 13px var(--sans);
+  padding: 0.3rem 0.85rem;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: pointer;
+}
+.runbtn.ghost { background: transparent; color: var(--accent); }
+.runbtn:disabled { opacity: 0.4; cursor: help; }
+.raw { font-family: var(--mono); font-size: 13px; }
+pre.output {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  background: var(--out-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+pre.output.live { border-color: var(--accent); }
+pre.output .stderr { color: var(--callout); }
+pre.output .meta { color: var(--muted); }
+textarea#source {
+  width: 100%;
+  min-height: 24rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  font: 13px/1.5 var(--mono);
+  color: var(--fg);
+  background: var(--code-bg);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+}
+
+.pager { display: flex; justify-content: space-between; margin-top: 2rem; }
+footer { margin-top: 3rem; font-size: 0.85rem; border-top: 1px solid var(--rule); padding-top: 0.75rem; }
+
+/* makeup token classes */
+.k, .kd, .kn, .kr, .ow, .o { color: var(--t-kw); }
+.s, .s1, .s2, .sb, .sc, .se, .sh, .si, .sx, .sr, .ss, .sd { color: var(--t-str); }
+.ss, .no, .nc, .bp { color: var(--t-atom); }
+.m, .mi, .mf, .mh, .mo, .mb { color: var(--t-num); }
+.c, .c1, .cm, .ch, .cs, .cp { color: var(--t-com); font-style: italic; }
+.nn, .nc { color: var(--t-mod); }
+.nf, .nd, .na { color: var(--t-fn); }
+
+@media (max-width: 760px) {
+  table.segments, .segments tbody, .segments tr, .segments td { display: block; width: 100%; }
+  .segments td.doc { width: 100%; padding: 0.75rem 0 0.4rem; }
+  .segments td.code { border-radius: 6px; }
+}

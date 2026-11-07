@@ -1,5 +1,7 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
+/_build/
+/deps/
+/dist/
+/node_modules/
+/.wrangler/
+erl_crash.dump
+.DS_Store

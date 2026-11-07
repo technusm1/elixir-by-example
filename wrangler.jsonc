@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "elixirbyexample",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "elixirbyexample.com", "custom_domain": true },
+    { "pattern": "www.elixirbyexample.com", "custom_domain": true }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ebe-analytics",
+      "database_id": "eeca3a22-f0e5-439a-91fa-86c74a53929e",
+      "migrations_dir": "worker/migrations"
+    }
+  ],
+  "observability": { "enabled": true }
+}

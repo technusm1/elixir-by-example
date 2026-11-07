@@ -1,0 +1,97 @@
+name: site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Versions come from .tool-versions, the same file local asdf uses.
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+            runner/deps
+            runner/_build
+          key: mix-${{ runner.os }}-${{ hashFiles('.tool-versions', 'mix.lock', 'runner/mix.lock') }}
+
+      - run: mix deps.get
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      # Static checks: formatting, warnings-as-errors (incl. the type checker),
+      # credo, dialyzer, unit tests.
+      - run: mix format --check-formatted
+      - run: mix compile --warnings-as-errors --force
+      - run: mix credo --strict
+      - run: mix dialyzer
+      - run: mix test
+
+      # Build the browser runtime, then run every example on the native BEAM.
+      - run: mix ebe.runner
+      - run: mix ebe.build
+
+      # Run every example again, in headless Chromium, through the real Worker.
+      - name: Verify examples in the browser
+        run: |
+          npx wrangler d1 migrations apply ebe-analytics --local
+          npx wrangler dev --port 8787 > wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8787/ && break; sleep 1; done
+          npm run verify:browser
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npm ci
+      - run: npx wrangler d1 migrations apply ebe-analytics --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Smoke test
+        run: |
+          sleep 5
+          curl -sf -o /dev/null https://elixirbyexample.com/
+          curl -sf https://elixirbyexample.com/llms.txt | head -1 | grep -q "Elixir by Example"
+          curl -sfI https://elixirbyexample.com/core/maps | grep -qi "cross-origin-embedder-policy: require-corp"
