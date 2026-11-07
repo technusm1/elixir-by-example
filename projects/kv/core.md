@@ -7,7 +7,7 @@ build one program and keep growing it: **KV**, a small key-value store.
 It's the smallest program that touches everything Elixir is good at. A store
 needs a data structure and an API (this track), then has to be shared by many
 callers at once and survive crashes (the OTP track), and finally has to live
-on more than one machine (the Distributed track, coming next). Caches, session
+on more than one machine (the Distributed track). Caches, session
 stores, rate limiters and service registries are all KV stores underneath.
 
 ## What changes along the way
@@ -16,7 +16,7 @@ stores, rate limiters and service registries are all KV stores underneath.
 | --- | --- | --- |
 | **Core Elixir** (this chapter) | an immutable value passed around by functions | maps, modules, structs, `with`, protocols |
 | **Processes and OTP** | a supervised process, with fast reads and expiring keys | GenServer, supervisors, Registry, ETS, timers |
-| **Distributed Elixir** *(coming next)* | replicated across nodes | nodes, `:pg`, partitions, Mnesia |
+| **Distributed Elixir** | replicated across nodes | nodes, `:global`, `:pg` (Mnesia and partitions coming) |
 
 ## How the steps work
 
