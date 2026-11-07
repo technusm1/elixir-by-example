@@ -154,11 +154,11 @@ defmodule Ebe.Build do
 
   # Runs the instrumented program (cell markers added) once; the raw output,
   # markers included, is cached and later split per cell.
-  defp cached_run(%Entry{source_path: path}) do
+  defp cached_run(%Entry{source_path: path, args: args}) do
     source = path |> File.read!() |> instrumented()
 
     key =
-      :crypto.hash(:sha256, ["v2", source, System.version(), System.otp_release()])
+      :crypto.hash(:sha256, ["v3", source, args, System.version(), System.otp_release()])
       |> Base.url_encode64(padding: false)
 
     cache = Path.join(@cache_dir, key)
@@ -168,7 +168,7 @@ defmodule Ebe.Build do
         {:ok, output}
 
       {:error, _} ->
-        with {:ok, output} <- Runner.run(path, source) do
+        with {:ok, output} <- Runner.run(path, source, args) do
           File.write!(cache, output)
           {:ok, output}
         end

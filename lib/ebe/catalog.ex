@@ -21,6 +21,9 @@ defmodule Ebe.Catalog do
 
   @root Path.expand("../..", __DIR__)
 
+  @no_dist "Needs several connected nodes. Browsers can't open the network sockets " <>
+             "Erlang distribution uses, so this one runs on the native BEAM only."
+
   @tracks [
     %{
       id: "core",
@@ -81,15 +84,39 @@ defmodule Ebe.Catalog do
            {"06-fast-reads-with-ets", "Fast reads with ETS", uses: ["ets", "genserver"]},
            {"07-expiring-keys", "Expiring keys", uses: ["messages", "genserver"]}
          ]}
+    },
+    %{
+      id: "distributed",
+      title: "Distributed Elixir",
+      blurb: "Many machines, one system: connected nodes, cluster-wide names and process groups.",
+      examples: [
+        {"nodes", "Nodes and Distribution",
+         args: ["--name", "nodes@127.0.0.1"], no_run: @no_dist},
+        {"global", "Global Names with :global",
+         args: ["--name", "global@127.0.0.1"], no_run: @no_dist},
+        {"pg", "Process Groups with :pg", args: ["--name", "pg@127.0.0.1"], no_run: @no_dist}
+      ],
+      project:
+        {"kv", "Spread the store across nodes",
+         [
+           {"08-replicated-buckets", "Replicated buckets",
+            uses: ["nodes", "pg"], args: ["--name", "kv08@127.0.0.1"], no_run: @no_dist}
+         ]}
     }
   ]
 
   tracks =
     for {t, index} <- Enum.with_index(@tracks, 1) do
       examples =
-        for {slug, title} <- t.examples do
+        for example <- t.examples do
+          {slug, title, opts} =
+            case example do
+              {slug, title} -> {slug, title, []}
+              {slug, title, opts} -> {slug, title, opts}
+            end
+
           path = Path.join([@root, "examples", t.id, slug <> ".exs"])
-          {slug, title, path, []}
+          {slug, title, path, opts}
         end
 
       {project_id, project_title, steps} = t.project
@@ -148,6 +175,14 @@ defmodule Ebe.Catalog do
 
     unless is_binary(reason) and String.trim(reason) != "" do
       raise CompileError, description: "#{slug}: no_run must be a non-empty string"
+    end
+  end
+
+  for t <- tracks, {slug, _, _, opts} <- t.examples, Keyword.has_key?(opts, :args) do
+    args = Keyword.fetch!(opts, :args)
+
+    unless is_list(args) and Enum.all?(args, &is_binary/1) do
+      raise CompileError, description: "#{slug}: args must be a list of strings"
     end
   end
 
@@ -210,7 +245,8 @@ defmodule Ebe.Catalog do
       source_path: path,
       url: url,
       uses: Keyword.get(opts, :uses, []),
-      no_run: Keyword.get(opts, :no_run)
+      no_run: Keyword.get(opts, :no_run),
+      args: Keyword.get(opts, :args, [])
     }
   end
 end

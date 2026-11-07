@@ -5,7 +5,7 @@ defmodule Ebe.Catalog.Entry do
   """
 
   @enforce_keys [:slug, :title, :kind, :track_id, :source_path, :url]
-  defstruct [:slug, :title, :kind, :track_id, :source_path, :url, uses: [], no_run: nil]
+  defstruct [:slug, :title, :kind, :track_id, :source_path, :url, uses: [], no_run: nil, args: []]
 
   @type kind :: :example | :step | :intro
 
@@ -17,7 +17,8 @@ defmodule Ebe.Catalog.Entry do
           source_path: Path.t(),
           url: String.t(),
           uses: [String.t()],
-          no_run: String.t() | nil
+          no_run: String.t() | nil,
+          args: [String.t()]
         }
 end
 

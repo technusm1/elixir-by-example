@@ -43,16 +43,17 @@ defmodule Ebe.Runner do
   @doc """
   Runs `source` as if it were the file at `path` (same basename, so error
   messages name the right file) and returns its combined stdout/stderr.
+  `args` go to `elixir` before the file, e.g. `["--name", "a@127.0.0.1"]`.
   """
-  @spec run(Path.t(), String.t()) :: result()
-  def run(path, source) do
+  @spec run(Path.t(), String.t(), [String.t()]) :: result()
+  def run(path, source, args \\ []) do
     workdir = Path.join(System.tmp_dir!(), "ebe-run-#{System.unique_integer([:positive])}")
     File.mkdir_p!(workdir)
     script = Path.join(workdir, Path.basename(path))
     File.write!(script, source)
 
     try do
-      script |> exec(workdir) |> check(path)
+      script |> exec(workdir, args) |> check(path)
     after
       File.rm_rf!(workdir)
     end
@@ -72,7 +73,7 @@ defmodule Ebe.Runner do
     {elixir, path}
   end
 
-  defp exec(path, workdir) do
+  defp exec(path, workdir, args) do
     {elixir, search_path} = toolchain()
 
     port =
@@ -81,7 +82,7 @@ defmodule Ebe.Runner do
         :exit_status,
         :stderr_to_stdout,
         :hide,
-        args: [path],
+        args: args ++ [path],
         cd: workdir,
         env: [
           {~c"PATH", String.to_charlist(search_path)},

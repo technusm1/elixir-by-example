@@ -135,10 +135,9 @@ defmodule Ebe.Pages do
           <header>
             <span class="track-no">{String.pad_leading("#{length(@tracks) + 1}", 2, "0")}</span>
             <div>
-              <h2>Distributed Elixir <span class="tag">coming next</span></h2>
+              <h2>Deployment <span class="tag">coming next</span></h2>
               <p>
-                Nodes, <code>:global</code>
-                and <code>:pg</code>, network partitions and Mnesia. The KV store goes multi-node.
+                Releases, containers and Kubernetes: running a cluster in production.
               </p>
             </div>
           </header>
@@ -179,9 +178,18 @@ defmodule Ebe.Pages do
         <div class="notebook" data-file={@page.entry.slug <> ".exs"} data-runtime={@runtime}>
           <div class="nb-bar">
             <span class="nb-hint">
-              {if @page.entry.no_run,
-                do: "Runs on the native BEAM only",
-                else: "Edit any cell and run it in your browser"}
+              <%= cond do %>
+                <% @page.entry.args != [] -> %>
+                  Run it with
+                  <code>{Enum.join(
+                    ["elixir" | @page.entry.args] ++ [Path.basename(@page.entry.url) <> ".exs"],
+                    " "
+                  )}</code>
+                <% @page.entry.no_run -> %>
+                  Runs on the native BEAM only
+                <% true -> %>
+                  Edit any cell and run it in your browser
+              <% end %>
             </span>
             <span class="nb-status" id="status" aria-live="polite"></span>
             <.run_controls entry={@page.entry} />
@@ -453,6 +461,7 @@ defmodule Ebe.Pages do
 
   defp short_title(%Track{id: "core"}), do: "Core"
   defp short_title(%Track{id: "otp"}), do: "OTP"
+  defp short_title(%Track{id: "distributed"}), do: "Distributed"
   defp short_title(%Track{title: title}), do: title
 
   @doc "Renders a component function to an HTML string."
