@@ -4,7 +4,8 @@
 #
 # Together, function clauses and guards replace most
 # `if` chains. Here is a function that handles an
-# HTTP-style result, written with `if`:
+# HTTP-style result, written with `if`. `x in 200..299`
+# checks that `x` is in the range, both ends included:
 defmodule WithIf do
   def handle(result) do
     if elem(result, 0) == :ok do
@@ -38,6 +39,8 @@ results = [
 
 Enum.each(results, &IO.inspect(WithClauses.handle(&1)))
 
+# A name ending in `?`, like `same?`, marks a boolean
+# by convention.
 same? = Enum.map(results, &WithIf.handle/1) == Enum.map(results, &WithClauses.handle/1)
 IO.inspect(same?, label: "same answers")
 
@@ -52,7 +55,7 @@ IO.inspect(same?, label: "same answers")
 # Clauses also fail loudly on input nobody planned
 # for. The `if` version quietly sends it down the
 # `else` branch and returns a wrong answer:
-unexpected = Enum.random([{:retry, 3}])
+unexpected = {:retry, 3}
 IO.inspect(WithIf.handle(unexpected))
 
 try do
