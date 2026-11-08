@@ -1,0 +1,5 @@
+# Build artifacts from your machine must never reach the image: they were
+# compiled for your OS, not the container's.
+_build
+deps
+.git

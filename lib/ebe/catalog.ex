@@ -119,7 +119,8 @@ defmodule Ebe.Catalog do
         "From your laptop to servers: releases, runtime configuration, containers and clusters.",
       examples: [
         {"releases", "Releases"},
-        {"runtime-config", "Runtime Configuration"}
+        {"runtime-config", "Runtime Configuration"},
+        {"containers", "Containers", guide: true}
       ],
       project:
         {"kv", "Ship the store",
