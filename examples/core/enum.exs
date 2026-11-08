@@ -1,5 +1,6 @@
 # `Enum` is the toolbox for anything *enumerable*:
-# lists, maps, ranges, MapSets and more. Its functions
+# lists, maps, ranges, MapSets (sets of unique
+# values) and more. Its functions
 # are eager: each one walks the whole collection and
 # returns a new list (or a single value).
 numbers = [5, 3, 8, 1, 9, 2]
@@ -25,6 +26,8 @@ IO.inspect(Enum.sort_by(words, &String.length/1), label: "by length")
 IO.inspect(Enum.sort(numbers, :desc), label: "desc")
 
 # Grouping and counting are one call each.
+# `~w(a b a)` is shorthand for the list of words
+# `["a", "b", "a"]`.
 IO.inspect(Enum.group_by(words, &String.length/1), label: "group_by")
 IO.inspect(Enum.frequencies(~w(a b a c a b)), label: "frequencies")
 
