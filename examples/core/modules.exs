@@ -1,5 +1,8 @@
 # Named functions live in modules. `def` makes a
-# public function, `defp` a private one.
+# public function, `defp` a private one. `@moduledoc`
+# and `@doc` attach documentation; `@spec` declares
+# argument and return types (more in
+# [Typespecs and Types](/core/typespecs)).
 defmodule Temperature do
   @moduledoc "Converts between Celsius and Fahrenheit."
 
@@ -22,6 +25,8 @@ IO.puts(Temperature.describe(100))
 IO.inspect(Temperature.to_c(212))
 
 # Private functions can't be called from outside.
+# `apply(module, name, args)` calls a function picked
+# at runtime, so this compiles and fails when it runs.
 try do
   apply(Temperature, :format, [1.0])
 rescue
