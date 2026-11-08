@@ -90,7 +90,8 @@ defmodule Breaker do
     {:keep_state_and_data, [{:reply, from, :reject}]}
   end
 
-  # Results reported back by callers.
+  # Results reported back by callers. A cast arrives
+  # as event type `:cast`, with no caller to reply to.
   def handle_event(:cast, {:report, {:ok, _}}, :closed, data) do
     {:keep_state, %{data | failures: 0}}
   end
