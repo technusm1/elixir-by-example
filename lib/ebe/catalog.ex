@@ -97,7 +97,8 @@ defmodule Ebe.Catalog do
         {"circuit-breaker", "Circuit Breaker"},
         {"process-dictionary", "The Process Dictionary"},
         {"ports-and-nifs", "Ports and NIFs", no_run: @no_os},
-        {"applications", "Applications and Configuration"}
+        {"applications", "Applications and Configuration"},
+        {"testing-processes", "Testing Processes"}
       ],
       project:
         {"kv", "Make the store concurrent",
