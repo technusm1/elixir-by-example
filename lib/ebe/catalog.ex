@@ -114,6 +114,7 @@ defmodule Ebe.Catalog do
         {"partitions", "Partitions and Split Brain", no_run: @no_dist},
         {"leases", "Leases and Fencing Tokens", no_run: @no_dist},
         {"sharding", "Sharding"},
+        {"idempotency", "Idempotency and Retries"},
         {"connections", "How Nodes Connect",
          args: ["--name", "connections@127.0.0.1"], no_run: @no_dist}
       ],
