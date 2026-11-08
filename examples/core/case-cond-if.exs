@@ -1,5 +1,8 @@
 # `case` matches a value against patterns, top to
-# bottom. Clauses can have guards.
+# bottom. Clauses can have guards: a `when` condition
+# after the pattern that must also be true.
+# `Enum.map/2` calls a function on each element of a
+# list and collects the results.
 classify = fn value ->
   case value do
     0 -> "zero"
