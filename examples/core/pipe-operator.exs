@@ -5,6 +5,8 @@
 # Nested calls read inside-out, and every extra
 # argument ends up far from the function it belongs
 # to. Which call do `~r/\s+/` and `"-"` go to?
+# (`~r/.../` is a regular expression; `\s+` matches
+# runs of whitespace.)
 title = "  Hello Pipe World  "
 IO.inspect(String.replace(String.trim(String.downcase(title)), ~r/\s+/, "-"))
 
@@ -72,7 +74,9 @@ IO.puts(Slug.slugify("  Hello, Pipe World!  "))
 
 # `then/2` pipes into a position other than the first,
 # and `tap/2` runs a side effect and passes the value
-# through unchanged.
+# through unchanged. Operators are functions in the
+# `Kernel` module, so `Kernel.*(10)` multiplies the
+# piped value by 10.
 5
 |> then(&Integer.pow(2, &1))
 |> tap(&IO.puts("2^5 is #{&1}"))
@@ -94,7 +98,7 @@ IO.puts(Slug.slugify("  Hello, Pipe World!  "))
 # > is `("total: " <> amount) |> to_string()`, which
 # > crashes when `amount` is an integer. Many guides
 # > (and agents) get this backwards.
-amount = Enum.random([42])
+amount = 42
 
 try do
   ("total: " <> amount) |> Integer.to_string() |> IO.puts()
@@ -109,4 +113,5 @@ IO.puts("total: " <> (amount |> Integer.to_string()))
 # > **Pitfall:** piping into an anonymous function
 # > needs the dot, `|> f.()`. And a single-step pipe
 # > (`foo |> bar()`) is usually clearer as `bar(foo)`;
-# > Credo flags it for that reason.
+# > Credo (a popular linter) flags it for that
+# > reason.
