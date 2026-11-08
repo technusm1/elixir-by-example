@@ -129,7 +129,23 @@ defmodule Ebe.Runner do
       result = spawn_collect("/bin/sh", ["-e", "-c", session(sh)], workdir, env, @walk_timeout_ms)
       check_session(result, length(sh), rel(dir))
     after
-      File.rm_rf!(workdir)
+      remove_when_released(workdir, 50)
+    end
+  end
+
+  # A release that was just told to stop may still be writing its logs into
+  # the project for a moment, so deleting the directory can race with it.
+  defp remove_when_released(dir, tries) do
+    case File.rm_rf(dir) do
+      {:ok, _} ->
+        :ok
+
+      {:error, _, _} when tries > 1 ->
+        Process.sleep(100)
+        remove_when_released(dir, tries - 1)
+
+      {:error, reason, path} ->
+        raise File.Error, reason: reason, action: "remove", path: path
     end
   end
 
