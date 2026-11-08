@@ -9,6 +9,7 @@
 #
 # The demo runs in a fresh process so the dictionary
 # starts empty. `run` waits for it to finish.
+# `spawn_monitor/1` spawns and monitors in one step.
 run = fn fun ->
   {pid, ref} = spawn_monitor(fun)
   receive do: ({:DOWN, ^ref, :process, ^pid, _} -> :ok)
@@ -27,7 +28,6 @@ end)
 # Who uses it? `Logger.metadata/1` stores its keyword
 # list there, which is why metadata set in one process
 # shows up in every log line *that process* writes.
-require Logger
 
 run.(fn ->
   Logger.metadata(request_id: "req-42")
@@ -51,7 +51,8 @@ end)
 # GenServer and Supervisor stores `:"$ancestors"` and
 # `:"$initial_call"`. Anyone can read another process's
 # dictionary with `Process.info/2`, which is how
-# `:observer` shows them.
+# `:observer` (Erlang's graphical process inspector)
+# shows them.
 {:ok, agent} = Agent.start_link(fn -> 0 end)
 {:dictionary, dict} = Process.info(agent, :dictionary)
 IO.inspect(dict |> Keyword.keys() |> Enum.sort(), label: "an Agent's keys")
