@@ -37,12 +37,19 @@ defmodule Breaker do
   end
 
   @impl true
-  def callback_mode, do: :handle_event_function
+  def callback_mode, do: [:handle_event_function, :state_enter]
 
   @impl true
   def init(opts), do: {:ok, :closed, %{failures: 0, opts: opts, trial: false}}
 
+  # Enter calls set each state up: open starts the
+  # cooldown, closed and half-open clear the counters.
   @impl true
+  def handle_event(:enter, _, :open, data),
+    do: {:keep_state_and_data, [{:state_timeout, data.opts[:cooldown], :retry}]}
+
+  def handle_event(:enter, _, _, data), do: {:keep_state, %{data | failures: 0, trial: false}}
+
   def handle_event({:call, from}, :state, state, _),
     do: {:keep_state_and_data, [{:reply, from, state}]}
 
@@ -58,23 +65,22 @@ defmodule Breaker do
   def handle_event({:call, from}, :ask, :half_open, _),
     do: {:keep_state_and_data, [{:reply, from, :reject}]}
 
-  def handle_event(:cast, {:report, {:ok, _}}, state, data) when state in [:closed, :half_open],
-    do: {:next_state, :closed, %{data | failures: 0, trial: false}}
+  def handle_event(:cast, {:report, {:ok, _}}, :closed, data),
+    do: {:keep_state, %{data | failures: 0}}
+
+  def handle_event(:cast, {:report, {:ok, _}}, :half_open, data), do: {:next_state, :closed, data}
 
   def handle_event(:cast, {:report, {:error, _}}, :closed, data) do
     if data.failures + 1 >= data.opts[:threshold],
-      do: open(data),
+      do: {:next_state, :open, data},
       else: {:keep_state, %{data | failures: data.failures + 1}}
   end
 
-  def handle_event(:cast, {:report, {:error, _}}, :half_open, data), do: open(data)
+  def handle_event(:cast, {:report, {:error, _}}, :half_open, data),
+    do: {:next_state, :open, data}
+
   def handle_event(:cast, {:report, _}, :open, _), do: :keep_state_and_data
   def handle_event(:state_timeout, :retry, :open, data), do: {:next_state, :half_open, data}
-
-  defp open(data) do
-    data = %{data | failures: 0, trial: false}
-    {:next_state, :open, data, [{:state_timeout, data.opts[:cooldown], :retry}]}
-  end
 end
 
 # The replica: a map in a GenServer. Calls to it time
