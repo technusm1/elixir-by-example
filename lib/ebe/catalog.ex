@@ -141,6 +141,7 @@ defmodule Ebe.Catalog do
         {"hot-code-loading", "Hot Code Loading"},
         {"tracing", "Tracing"},
         {"memory", "Memory: Copies and Binaries"},
+        {"mailboxes", "Mailboxes and Slow Consumers"},
         {"agent-access", "Letting Agents Debug Production"}
       ],
       project:
