@@ -46,7 +46,9 @@ end
 IO.puts("host is #{host}")
 
 # Nested data: `put_in/2`, `update_in/3` and friends
-# take a path into the structure.
+# take a path into the structure. `&(&1 + 1)` is
+# shorthand for `fn x -> x + 1 end`: `&1` is the first
+# argument.
 state = %{users: %{"ada" => %{visits: 1}}}
 state = update_in(state, [:users, "ada", :visits], &(&1 + 1))
 IO.inspect(state)
