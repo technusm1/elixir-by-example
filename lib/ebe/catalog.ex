@@ -63,7 +63,8 @@ defmodule Ebe.Catalog do
         {"errors", "Errors and Exceptions"},
         {"sigils", "Sigils"},
         {"compilation", "From Source to BEAM"},
-        {"mix", "Mix Projects"}
+        {"mix", "Mix Projects"},
+        {"testing", "Testing with ExUnit"}
       ],
       project:
         {"kv", "Build a key-value store",

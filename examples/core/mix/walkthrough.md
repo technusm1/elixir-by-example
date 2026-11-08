@@ -157,7 +157,7 @@ failing order can be repeated with `--seed`. We fix the seed, pin
 of CPU cores, is printed too), and drop the line with the run time, so the
 output below is the same on every machine. `mix test` builds in the `test`
 environment (more below), so it compiles everything again first. Each `.` is a
-passing test.
+passing test. [Testing with ExUnit](/core/testing) covers tests in more depth.
 
 ```sh
 mix test --seed 0 --max-cases 1 | grep -v '^Finished in'
