@@ -38,7 +38,9 @@ where, without being able to change anything.
 ## The project
 
 An `orders` app with one worker that charges orders one at a time. Today its
-payment provider hangs.
+payment provider hangs. `:ssh` is part of OTP but not started by default, so
+`mix.exs` lists it in `extra_applications` (see
+[Applications and Configuration](/otp/applications)).
 
 ```file mix.exs
 ```
@@ -52,7 +54,12 @@ payment provider hangs.
 The agent's door. `exec: {:direct, fun}` sends every command an SSH client runs
 to our function, together with the authenticated user name, and `shell:
 :disabled` means there is no interactive shell to fall back on. Commands
-outside the allowlist get an error.
+outside the allowlist get an error. The other options of `:ssh.daemon/2`:
+`system_dir` is the directory with the node's host key, `user_dir` the one
+with `authorized_keys`, and `auth_methods: ~c"publickey"` accepts keys only, no
+passwords. `queues` asks `Process.info/2` for a list of keys at once, which
+returns a keyword list of just those (or `nil` if the process has already
+exited).
 
 ```file lib/orders/agent_access.ex
 ```
