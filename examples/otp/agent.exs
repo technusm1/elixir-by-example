@@ -1,6 +1,7 @@
 # An `Agent` is a process that only holds state. You
 # pass it functions to read or change that state. It's
-# a GenServer with the callbacks written for you.
+# a GenServer (the general-purpose server process,
+# next page) with the callbacks written for you.
 {:ok, agent} = Agent.start_link(fn -> %{} end)
 
 Agent.update(agent, &Map.put(&1, "apples", 3))
@@ -18,6 +19,11 @@ IO.inspect(Agent.get(agent, & &1), label: "after pop")
 
 # Agents are usually named and wrapped in a module so
 # callers don't deal with pids or the state's shape.
+# `name: __MODULE__` registers the process under the
+# module's name, so calls can use the name instead of
+# a pid. `use Agent` adds a `child_spec/1` so a
+# supervisor can start it (see
+# [Protocols and Behaviours](/core/protocols)).
 defmodule Visits do
   use Agent
 
@@ -34,7 +40,7 @@ IO.inspect(Visits.count("/"), label: "visits to /")
 
 # The function you pass runs *inside* the agent
 # process. Concurrent updates are therefore
-# serialised: 100 concurrent increments never lose one.
+# serialized: 100 concurrent increments never lose one.
 {:ok, counter} = Agent.start_link(fn -> 0 end)
 
 1..100
