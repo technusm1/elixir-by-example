@@ -14,7 +14,10 @@ end
 
 # Groups live in a *scope*, a process that must run on
 # every node taking part. Here we start the default
-# scope, `:pg`, on all three nodes.
+# scope, `:pg`, on all three nodes. On the peers it's
+# `:pg.start/1`, not `start_link`, as on the Global
+# page: a process linked to the short-lived `:erpc`
+# caller would die when the call returns.
 {:ok, _} = :pg.start_link()
 for n <- [a, b], do: {:ok, _} = :erpc.call(n, :pg, :start, [:pg])
 
