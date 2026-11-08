@@ -20,8 +20,8 @@ On this page:
 
 ## The project
 
-The same setup as [Transactions and Constraints](/reliability/transactions):
-Ecto on SQLite.
+Ecto on SQLite, set up as in [Ecto Basics](/reliability/ecto). The
+`payload` column holds a map, which SQLite stores as JSON text.
 
 ```file mix.exs
 ```
@@ -40,6 +40,10 @@ The application starts the repo and the relay.
 ```file priv/repo/migrations/20261108000000_create_orders.exs
 ```
 
+These schemas have no changesets. The rows are built by the shop's own code,
+not from outside data, so there's nothing to validate, and `Repo.insert/1`
+accepts a plain struct as well as a changeset.
+
 ```file lib/shop/order.ex
 ```
 
@@ -54,26 +58,34 @@ down, and so does the database. Everything in the node's memory doesn't.
 ```
 
 Both ways of placing an order. `crash_after_commit: true` halts the node right
-after the transaction commits, the worst moment for a dual write.
+after the transaction commits, the worst moment for a dual write. The outbox
+version uses `Ecto.Multi` as on [Transactions](/reliability/transactions):
+success returns a map of each step's result by name, and `%{order: order}`
+picks out the inserted order.
 
 ```file lib/shop.ex
 ```
 
 The relay polls the outbox once a second. `flush/1` runs a pass on demand so
 the output below doesn't depend on timing, and `crash_before_mark: true` halts
-the node after publishing an event but before marking it as sent.
+the node after publishing an event but before marking it as sent. The pending
+events come from a `from` query as in [Ecto Basics](/reliability/ecto);
+`is_nil/1` in a query becomes SQL's `IS NULL`.
 
 ```file lib/shop/relay.ex
 ```
 
 ## Set up
 
+As in [Ecto Basics](/reliability/ecto), migrations run on one connection,
+since SQLite takes one writer at a time.
+
 ```sh
 mix deps.get > /dev/null
 mix deps.compile > /dev/null 2>&1
 mix compile
 mix ecto.create --quiet
-mix ecto.migrate --quiet
+mix ecto.migrate --quiet --pool-size 1
 ```
 
 ## A dual write loses the event

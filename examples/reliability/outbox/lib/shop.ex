@@ -22,7 +22,7 @@ defmodule Shop do
       Multi.new()
       |> Multi.insert(:order, %Order{item: item})
       |> Multi.insert(:event, %OutboxEvent{topic: "order_placed", payload: %{"item" => item}})
-      |> Repo.transaction()
+      |> Repo.transact()
 
     if opts[:crash_after_commit], do: crash("order #{order.id} committed, node stops")
     {:ok, order.id}
