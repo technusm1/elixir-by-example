@@ -25,6 +25,9 @@ defmodule Ebe.Catalog do
   @no_dist "Needs several connected nodes. Browsers can't open the network sockets " <>
              "Erlang distribution uses, so this one runs on the native BEAM only."
 
+  @no_os "Starts operating-system programs, which a browser tab can't do, " <>
+           "so this one runs on the native BEAM only."
+
   @tracks [
     %{
       id: "core",
@@ -75,7 +78,8 @@ defmodule Ebe.Catalog do
         {"genserver", "GenServer"},
         {"supervisors", "Supervisors"},
         {"registry", "Registry"},
-        {"ets", "ETS"}
+        {"ets", "ETS"},
+        {"ports-and-nifs", "Ports and NIFs", no_run: @no_os}
       ],
       project:
         {"kv", "Make the store concurrent",
@@ -142,6 +146,7 @@ defmodule Ebe.Catalog do
         {"tracing", "Tracing"},
         {"memory", "Memory: Copies and Binaries"},
         {"mailboxes", "Mailboxes and Slow Consumers"},
+        {"schedulers", "Schedulers and Reductions", args: ["--erl", "+S 1"]},
         {"agent-access", "Letting Agents Debug Production"}
       ],
       project:
