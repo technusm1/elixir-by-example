@@ -57,6 +57,7 @@ defmodule Ebe.Catalog do
         {"streams", "Streams"},
         {"erlang-data-structures", "Erlang Data Structures"},
         {"structs", "Structs"},
+        {"typespecs", "Typespecs and Types"},
         {"protocols", "Protocols"},
         {"with", "with"},
         {"errors", "Errors and Tagged Tuples"},
