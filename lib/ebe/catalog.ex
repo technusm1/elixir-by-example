@@ -188,6 +188,7 @@ defmodule Ebe.Catalog do
         "Keeping data right when steps fail: transactions, the outbox pattern and sagas, " <>
           "and a store that protects itself under load.",
       examples: [
+        {"ecto", "Ecto Basics"},
         {"transactions", "Transactions and Constraints"},
         {"outbox", "The Outbox Pattern"},
         {"sagas", "Sagas"}
