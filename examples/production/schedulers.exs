@@ -14,7 +14,9 @@ IO.inspect(System.schedulers_online(), label: "schedulers")
 
 # A process that never stops: an endless tail-recursive
 # loop. It never waits for a message, so it never gives
-# up the CPU by itself.
+# up the CPU by itself. `Process.register/2` gives it a
+# name, so it's easy to recognize when we go looking for
+# the busiest process below.
 defmodule Spin do
   def forever(n), do: forever(n + 1)
 end
