@@ -80,6 +80,7 @@ defmodule Ebe.Catalog do
         {"task", "Task"},
         {"agent", "Agent"},
         {"genserver", "GenServer"},
+        {"backpressure", "Backpressure"},
         {"supervisors", "Supervisors"},
         {"registry", "Registry"},
         {"ets", "ETS"},
