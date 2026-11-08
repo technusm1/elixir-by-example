@@ -1,6 +1,8 @@
 # `Stream` functions look like `Enum` functions but
 # are *lazy*: they build a recipe instead of a result.
 # Nothing runs until an `Enum` function consumes it.
+# The recipe is a struct, a map with a fixed shape
+# (more in [Structs](/core/structs)).
 lazy = Stream.map([1, 2, 3], &(&1 * 2))
 IO.inspect(is_struct(lazy, Stream), label: "a %Stream{}, not a list")
 IO.inspect(Enum.to_list(lazy), label: "materialized")
