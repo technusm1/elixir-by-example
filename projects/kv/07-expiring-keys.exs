@@ -30,6 +30,9 @@ defmodule KV.Cache do
   # waiting for the timer.
   def sweep, do: GenServer.call(__MODULE__, :sweep)
 
+  # Monotonic time is used deliberately: wall-clock
+  # time can jump (NTP, daylight saving), monotonic
+  # can't.
   defp now, do: System.monotonic_time(:millisecond)
 
   @impl true
@@ -64,8 +67,8 @@ defmodule KV.Cache do
   end
 end
 
-# Monotonic time is used deliberately: wall-clock time
-# can jump (NTP, daylight saving), monotonic can't.
+# A 50 ms key and a one-minute key, read before and
+# after the short one expires.
 {:ok, _} = KV.Cache.start_link(sweep_every: 60_000)
 
 KV.Cache.put("session:ada", :token_a, 50)
