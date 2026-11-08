@@ -3,6 +3,11 @@ and forms clusters on Kubernetes. Now it's in production, and things go wrong
 there that never went wrong on a laptop. This chapter is about finding and
 fixing them on the running system, with the tools the BEAM ships with.
 
+The concept pages of this track cover those tools one at a time: hot code
+loading, tracing, memory, mailboxes, schedulers, profiling, crash dumps, and
+giving AI agents safe, read-only access. The step below puts several of them
+together on KV.
+
 1. **Debug it live.** A KV node ignores updates. Reproduce the report with
    `rpc`, look at the replica's state, trace one update to find the bug, and
    hot-patch the fix into the running node without losing its data.

@@ -143,7 +143,8 @@ defmodule Ebe.Catalog do
       id: "production",
       title: "Production",
       blurb:
-        "Running it: look inside a live node, trace it, and change its code without a restart.",
+        "Running it: look inside a live node, find what is slow or leaking, read crash dumps, " <>
+          "and change code without a restart.",
       examples: [
         {"hot-code-loading", "Hot Code Loading"},
         {"tracing", "Tracing"},
@@ -151,6 +152,7 @@ defmodule Ebe.Catalog do
         {"mailboxes", "Mailboxes and Slow Consumers"},
         {"schedulers", "Schedulers and Reductions", args: ["--erl", "+S 1"]},
         {"profiling", "Profiling", no_run: @no_tools},
+        {"crash-dumps", "Crash Dumps"},
         {"agent-access", "Letting Agents Debug Production"}
       ],
       project:
