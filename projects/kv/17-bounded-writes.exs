@@ -19,6 +19,9 @@
 defmodule KV.Disk do
   # The slow disk: an Agent holding the log. Each write
   # takes 10 ms, then tells the store it's done.
+  # `Agent.cast/2` is `Agent.update/2` without waiting:
+  # it returns `:ok` at once and the Agent runs the
+  # function later.
   def start, do: Agent.start_link(fn -> [] end, name: __MODULE__)
 
   def write(store, entry) do
