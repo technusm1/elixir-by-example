@@ -82,6 +82,7 @@ defmodule Ebe.Catalog do
         {"supervisors", "Supervisors"},
         {"registry", "Registry"},
         {"ets", "ETS"},
+        {"process-dictionary", "The Process Dictionary"},
         {"ports-and-nifs", "Ports and NIFs", no_run: @no_os}
       ],
       project:
