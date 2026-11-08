@@ -174,6 +174,26 @@ defmodule Ebe.Catalog do
            {"15-debugging-live", "Debugging KV live",
             uses: ["tracing", "hot-code-loading", "releases"]}
          ]}
+    },
+    %{
+      id: "reliability",
+      title: "Reliability",
+      blurb:
+        "Keeping data right when steps fail: transactions, the outbox pattern and sagas, " <>
+          "and a store that protects itself under load.",
+      examples: [
+        {"transactions", "Transactions and Constraints"},
+        {"outbox", "The Outbox Pattern"},
+        {"sagas", "Sagas"}
+      ],
+      project:
+        {"kv", "Protect the store",
+         [
+           {"16-limit-each-client", "Limit each client", uses: ["rate-limiting", "ets"]},
+           {"17-bounded-writes", "Bound the writes", uses: ["backpressure", "genserver"]},
+           {"18-replicate-behind-a-breaker", "Replicate behind a breaker",
+            uses: ["circuit-breaker", "idempotency"]}
+         ]}
     }
   ]
 
