@@ -38,6 +38,8 @@ Process.flag(:trap_exit, false)
 # watcher gets a `:DOWN` message when the target exits,
 # for any reason. Use monitors when you only want to
 # observe, like a client watching a server.
+# `exit(reason)` ends the calling process with that
+# reason (more in [Errors](/core/errors)).
 pid = spawn(fn -> exit(:shutting_down) end)
 ref = Process.monitor(pid)
 
@@ -57,6 +59,8 @@ end
 
 # Stop watching with `Process.demonitor/2`. `:flush`
 # also removes a `:DOWN` that may already be queued.
+# `Process.exit(pid, :kill)` then kills the process
+# unconditionally; it can't trap a `:kill`.
 pid = spawn(fn -> Process.sleep(:infinity) end)
 ref = Process.monitor(pid)
 true = Process.demonitor(ref, [:flush])
