@@ -87,6 +87,8 @@ IO.inspect(:erpc.call(c, KV, :get, ["lang"]), label: "new node c reads lang")
 # distributed storage. A newcomer has to *catch up* on
 # what it missed. And a synchronous write to every
 # replica blocks, or fails, as soon as one node is slow
-# or unreachable. The next steps tackle both: Mnesia
-# for replicated tables that sync new nodes for you, and
-# what to do when the network splits the cluster.
+# or unreachable. The next steps take the first: a new
+# node catches up by hand, then Mnesia replicates tables
+# and syncs new nodes for you, and libcluster forms the
+# cluster on its own. The slow replica comes back in
+# [Replicate behind a breaker](/reliability/kv-18-replicate-behind-a-breaker).
