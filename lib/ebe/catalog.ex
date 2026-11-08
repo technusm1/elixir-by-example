@@ -86,6 +86,7 @@ defmodule Ebe.Catalog do
         {"job-queue", "Job Queue"},
         {"registry", "Registry"},
         {"ets", "ETS"},
+        {"caching", "Caching"},
         {"process-dictionary", "The Process Dictionary"},
         {"ports-and-nifs", "Ports and NIFs", no_run: @no_os}
       ],
