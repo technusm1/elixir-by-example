@@ -11,8 +11,24 @@ IO.inspect(Node.alive?(), label: "distributed?")
 # In production each node is its own machine or
 # container. To try things on one machine, OTP's
 # `:peer` module starts extra local nodes linked to
-# this one. A fresh peer only knows Erlang, so we give
-# it our code paths to make Elixir available there.
+# this one. `longnames: true` gives them *long names*
+# like ours: `name@host` with a full host name or IP,
+# as `--name` does. `--sname` gives *short names*
+# (`name@host` without dots), and a long-name node and
+# a short-name node can't connect to each other.
+#
+# A fresh peer only knows Erlang. The *code path* is
+# the list of directories a VM loads compiled modules
+# from; `:code.add_paths/1` gives the peer ours, which
+# makes Elixir available there.
+#
+# Nodes only connect if they share a *cookie*, a secret
+# atom. Without `--cookie`, the VM reads it from
+# `~/.erlang.cookie`, creating that file with a random
+# value the first time. The peers run as the same user
+# on the same machine, so they read the same cookie.
+# `Node.get_cookie/0` returns it; treat it as a
+# password and never print or log it.
 start_peer = fn name ->
   {:ok, pid, node} = :peer.start_link(%{name: name, host: ~c"127.0.0.1", longnames: true})
   :ok = :erpc.call(node, :code, :add_paths, [:code.get_path()])
