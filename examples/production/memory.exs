@@ -71,9 +71,12 @@ IO.inspect(:binary.referenced_byte_size(:binary.copy(slice)), label: "copied sli
 # > **Pitfall:** a large binary is freed only when every
 # > process that referenced it has garbage-collected. A
 # > long-lived process that rarely does work (a registry,
-# > a cache owner) can hold many dead binaries. Hibernating
-# > it (`{:noreply, state, :hibernate}`) or calling
-# > `:erlang.garbage_collect/1` lets them go.
+# > a cache owner) can hold many dead binaries.
+# > Hibernating it (returning `{:noreply, state,
+# > :hibernate}` from a callback, which garbage-collects
+# > it and shrinks it to its minimum size until the next
+# > message) or calling `:erlang.garbage_collect/1` lets
+# > them go.
 #
 # > **Pitfall:** sending a big, internally shared term (a
 # > tree built from repeated subtrees, a list referenced
