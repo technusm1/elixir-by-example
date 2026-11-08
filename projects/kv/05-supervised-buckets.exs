@@ -2,14 +2,16 @@
 # bucket is its own process: a crash in one bucket
 # can't touch the others, and buckets work in parallel.
 # Buckets are created on demand under a
-# DynamicSupervisor, and found by name in a Registry.
+# DynamicSupervisor (a supervisor that starts children
+# at runtime, see [Supervisors](/otp/supervisors)), and
+# found by name in a Registry.
 #
 # Crash reports contain pids that change every run, so
 # we silence the logger for this demo.
 Logger.configure(level: :none)
 
 defmodule KV.Bucket do
-  use Agent, restart: :permanent
+  use Agent
 
   def start_link(name), do: Agent.start_link(fn -> %{} end, name: via(name))
   def via(name), do: {:via, Registry, {KV.Registry, name}}
@@ -56,6 +58,9 @@ receive do: ({:DOWN, ^ref, _, _, _} -> :ok)
 
 # The supervisor restarts it under the same name, but
 # with *empty* state. "users" never noticed.
+# `which_children/1` is a call, so the supervisor has
+# handled the exit and restarted the bucket by the time
+# it answers.
 _ = DynamicSupervisor.which_children(KV.BucketSup)
 IO.inspect(KV.Bucket.get("carts", "ada"), label: "carts/ada after crash")
 IO.inspect(KV.Bucket.get("users", "ada"), label: "users/ada untouched")
