@@ -1,7 +1,12 @@
 # A `GenServer` is a process that holds state and
 # handles requests one at a time. You write the
 # callbacks; OTP provides the receive loop, timeouts,
-# error reporting and supervision hooks.
+# error reporting and supervision hooks. `use
+# GenServer` declares the behaviour, and `@impl true`
+# marks each callback (see
+# [Protocols and Behaviours](/core/protocols)).
+# `name: __MODULE__` registers the process under the
+# module's name, so callers don't need its pid.
 defmodule Counter do
   use GenServer
 
@@ -15,6 +20,8 @@ defmodule Counter do
   def value, do: GenServer.call(__MODULE__, :value)
 
   # Server callbacks run inside the GenServer process.
+  # `handle_call/3` also gets `from`, which identifies
+  # the caller (unused here).
   @impl true
   def init(initial) when is_integer(initial), do: {:ok, initial}
 
@@ -40,6 +47,9 @@ IO.inspect(Process.alive?(pid), label: "alive?")
 
 # Plain messages (not calls or casts), like timers or
 # monitors, arrive in `handle_info/2`.
+# `Process.send_after/3` mails a message after a
+# delay, and returning `{:stop, reason, state}` ends
+# the GenServer.
 defmodule Ticker do
   use GenServer
 
@@ -74,7 +84,8 @@ end
 # > design*: one process, one message at a time. Doing
 # > slow work (HTTP calls, heavy computation) inside
 # > `handle_call` blocks every other caller. Hand slow
-# > work to a `Task`, or read hot data from ETS instead.
+# > work to a `Task`, or read hot data from
+# > [ETS](/otp/ets) instead.
 #
 # > **Pitfall:** `GenServer.call/3` from inside the same
 # > GenServer's callback deadlocks until the timeout,
