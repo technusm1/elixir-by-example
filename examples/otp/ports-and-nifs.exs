@@ -81,9 +81,11 @@ IO.inspect(running?.(), label: "after kill")
 # > write a NIF, Rustler (Rust) is safer than raw C: it
 # > catches Rust panics and raises them as Elixir errors.
 #
-# > **Pitfall:** a NIF that runs for more than about a
-# > millisecond blocks its scheduler, and every process
-# > waiting on that scheduler stalls. Long NIFs must run
+# > **Pitfall:** the VM runs processes on a few
+# > *schedulers*, usually one per CPU core. A NIF that
+# > runs for more than about a millisecond blocks its
+# > scheduler, and every process waiting on that
+# > scheduler stalls. Long NIFs must run
 # > on a dirty scheduler (see
 # > [Schedulers and Reductions](/production/schedulers)).
 #
