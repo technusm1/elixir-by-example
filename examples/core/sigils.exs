@@ -26,8 +26,9 @@ IO.inspect(Regex.named_captures(~r/(?<user>\w+)@(?<host>[\w.]+)/, "ada@example.c
 IO.inspect(~c"abc")
 IO.inspect(~c"abc" == [97, 98, 99])
 
-# Date and time sigils are checked at compile time,
-# so an invalid date like `~D[2026-02-30]` won't
+# `~D` is a date, `~T` a time of day and `~U` a UTC
+# date and time. They're checked at compile time, so
+# an invalid date like `~D[2026-02-30]` won't
 # compile.
 date = ~D[2026-11-07]
 IO.inspect(date)
@@ -50,7 +51,8 @@ IO.puts(~s|and (parens) too|)
 # multi-letter uppercase name) that receives the
 # content and the modifiers. `import` the module to
 # use it. (In a script, the importing code must live
-# in a separate module from the definition.)
+# in a separate module from the definition.) `?n` is
+# the integer codepoint of the character `n`.
 defmodule Sigils do
   def sigil_i(text, []), do: String.to_integer(text)
   def sigil_i(text, [?n]), do: -String.to_integer(text)
