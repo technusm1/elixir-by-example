@@ -30,11 +30,15 @@
 # the network between a and b can't cut us off from
 # either of them.
 #
-# Each peer gets the same cookie, so they may connect,
-# and `dist_auto_connect never`, so they don't reconnect
-# by themselves the moment we cut them apart. Logging is
-# off on the peers: `:global` logs the name conflict
-# below with process ids, which change on every run.
+# Each peer gets the same cookie (`-setcookie`), so they
+# may connect. A `-kernel key value` flag sets a config
+# value of `kernel`, the OTP application that runs
+# distribution, before it starts.
+# `dist_auto_connect never` stops the peers from
+# reconnecting by themselves the moment we cut them
+# apart. Logging is off on the peers: `:global` logs the
+# name conflict below with process ids, which change on
+# every run.
 peer_args = ~w(
   -setcookie split
   -kernel dist_auto_connect never
@@ -138,8 +142,10 @@ IO.inspect(same, label: "a and b agree on the leader")
 # collection, or is too busy to answer, causes the same
 # split without any network fault.
 #
-# > **Pitfall:** `:global` chooses availability: each
-# > side of a split keeps going.
+# > **Pitfall:** `:global` chooses *availability* (each
+# > side of a split keeps going) over *consistency*
+# > (every node seeing the same answer). During a
+# > partition no system can have both.
 # > That's often right, but a singleton that must never
 # > run twice needs something outside the cluster to say
 # > who may act: a lease in a database, and a fencing
