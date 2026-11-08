@@ -24,7 +24,7 @@ IO.inspect(Keyword.merge(defaults, opts))
 
 # When a keyword list is the last argument, the
 # brackets are optional. That's why `if` and `def`
-# accept `do:`.
+# (both coming up) accept `do:`.
 IO.inspect(String.split("a b c", " ", parts: 2))
 IO.inspect(if(true, do: "yes", else: "no"))
 
