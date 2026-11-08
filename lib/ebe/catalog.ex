@@ -88,6 +88,7 @@ defmodule Ebe.Catalog do
         {"ets", "ETS"},
         {"caching", "Caching"},
         {"rate-limiting", "Rate Limiting"},
+        {"circuit-breaker", "Circuit Breaker"},
         {"process-dictionary", "The Process Dictionary"},
         {"ports-and-nifs", "Ports and NIFs", no_run: @no_os}
       ],
