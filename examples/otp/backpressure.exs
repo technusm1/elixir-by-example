@@ -17,6 +17,10 @@
 # at once while there is room, and held back while the
 # buffer is full. Each `pop/1` frees a slot, so the
 # oldest waiting producer gets in and is released.
+# Both lines are kept in Erlang's `:queue`, a FIFO
+# queue: `in` adds at the back, `out` takes from the
+# front (see
+# [Erlang Data Structures](/core/erlang-data-structures)).
 defmodule Buffer do
   use GenServer
 
@@ -131,9 +135,10 @@ IO.inspect(Buffer.info(buffer), label: "three producers waiting")
 
 # > **Pitfall:** a call timeout doesn't cancel the
 # > request. When a blocked `push` gives up, the caller
-# > exits with a timeout (caught here), but its item is
-# > still parked in the server, and the next free slot
-# > takes it. The producer thinks it failed; the item
+# > exits with a timeout (caught here with
+# > `catch :exit`, see [Errors](/core/errors)), but
+# > its item is still parked in the server, and the
+# > next free slot takes it. The producer thinks it failed; the item
 # > goes through anyway.
 {:ok, buffer} = Buffer.start_link(1)
 :ok = Buffer.push(buffer, :first)
