@@ -66,6 +66,8 @@ defmodule KV.Limiter do
 end
 
 # The API clients use: check the limit, then write.
+# Reads aren't limited: `defdelegate` defines `get/1`
+# as a plain call to `KV.Store.get/1`.
 defmodule KV do
   @limit 5
 
