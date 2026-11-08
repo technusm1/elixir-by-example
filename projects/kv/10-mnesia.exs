@@ -32,13 +32,17 @@ end
 
 # Each node starts with its own empty Mnesia. Pointing
 # this node at a and b (`extra_db_nodes`) merges them
-# into one Mnesia cluster with a shared schema.
+# into one Mnesia cluster with a shared *schema*:
+# Mnesia's own table of which tables exist and which
+# nodes hold a copy of each.
 {:ok, _} = :mnesia.change_config(:extra_db_nodes, [a, b])
 IO.inspect(Enum.sort(:mnesia.system_info(:running_db_nodes)), label: "mnesia cluster")
 
 # One table, a copy on every node. Records are tuples
 # whose first element is the table name: `{:kv, key,
-# value}`.
+# value}`. Mnesia's table and transaction functions
+# return `{:atomic, result}` on success and
+# `{:aborted, reason}` on failure.
 nodes = [node(), a, b]
 {:atomic, :ok} = :mnesia.create_table(:kv, attributes: [:key, :value], ram_copies: nodes)
 
