@@ -105,7 +105,9 @@ defmodule Ebe.Catalog do
          args: ["--name", "global@127.0.0.1"], no_run: @no_dist},
         {"pg", "Process Groups with :pg", args: ["--name", "pg@127.0.0.1"], no_run: @no_dist},
         {"partitions", "Partitions and Split Brain", no_run: @no_dist},
-        {"leases", "Leases and Fencing Tokens", no_run: @no_dist}
+        {"leases", "Leases and Fencing Tokens", no_run: @no_dist},
+        {"connections", "How Nodes Connect",
+         args: ["--name", "connections@127.0.0.1"], no_run: @no_dist}
       ],
       project:
         {"kv", "Spread the store across nodes",
