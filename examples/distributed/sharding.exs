@@ -7,6 +7,12 @@
 # spreads keys evenly, and it falls apart the moment the
 # cluster changes size: almost every key gets a new
 # owner, so almost all the data has to move.
+#
+# `:erlang.phash2/1` hashes any term to an integer. It
+# gives the same hash for the same term on every node
+# and every platform, which is exactly what agreeing
+# without talking needs. `:erlang.phash2/2` takes a
+# range `n` and returns a hash from 0 to `n - 1`.
 keys = for n <- 1..10_000, do: "user:#{n}"
 four = [:a, :b, :c, :d]
 five = four ++ [:e]
@@ -28,9 +34,11 @@ IO.inspect(moved.(mod_owner, four, five), label: "mod: keys moved going from 4 t
 #
 # Each node goes on the ring many times (*virtual
 # nodes*), under different hashes, to even out the
-# load (more on that below). A `:gb_trees` keeps the
-# points sorted, and `iterator_from/2` finds the first
-# point at or after a hash without scanning the ring.
+# load (more on that below). A `:gb_trees` (see
+# [Erlang Data Structures](/core/erlang-data-structures))
+# keeps the points sorted, and `iterator_from/2` finds
+# the first point at or after a hash without scanning
+# the ring.
 defmodule Ring do
   @range 4_294_967_296
 
@@ -50,9 +58,7 @@ defmodule Ring do
     end
   end
 
-  # `:erlang.phash2/2` gives the same hash for the same
-  # term on every node and every platform, which is
-  # exactly what agreeing without talking needs.
+  # Hashes from 0 to 2^32 - 1: a 32-bit ring.
   defp hash(term), do: :erlang.phash2(term, @range)
 end
 
