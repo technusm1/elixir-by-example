@@ -20,11 +20,13 @@ defmodule KV.Cache do
     end
   end
 
-  # Writes: serialised through the owner process.
+  # Writes: serialized through the owner process.
   def put(bucket, key, value), do: GenServer.call(__MODULE__, {:put, bucket, key, value})
 
   # A bucket's keys, using a match on the first half of
-  # the composite key.
+  # the composite key. `:ets.match/2` returns, for each
+  # matching row, a list of what the `:"$1"` slots
+  # matched; `:_` matches anything.
   def keys(bucket) do
     @table |> :ets.match({{bucket, :"$1"}, :_}) |> List.flatten() |> Enum.sort()
   end
