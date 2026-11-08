@@ -83,6 +83,7 @@ defmodule Ebe.Catalog do
         {"gen-statem", ":gen_statem"},
         {"backpressure", "Backpressure"},
         {"supervisors", "Supervisors"},
+        {"job-queue", "Job Queue"},
         {"registry", "Registry"},
         {"ets", "ETS"},
         {"process-dictionary", "The Process Dictionary"},
