@@ -60,7 +60,7 @@ defmodule Ebe.Catalog do
         {"typespecs", "Typespecs and Types"},
         {"protocols", "Protocols and Behaviours"},
         {"with", "with"},
-        {"errors", "Errors and Tagged Tuples"},
+        {"errors", "Errors and Exceptions"},
         {"sigils", "Sigils"},
         {"compilation", "From Source to BEAM"},
         {"mix", "Mix Projects"}
