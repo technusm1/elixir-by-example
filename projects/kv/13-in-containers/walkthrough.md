@@ -48,6 +48,10 @@ host part is the machine's short hostname, here the container's hostname.
 Compose names each container's network address after its service, so `kv-a`
 and `kv-b` resolve inside the network and `kv@kv-a` can reach `kv@kv-b`.
 
+The environment both containers share is written once. `&kv-env` names a YAML
+block (an *anchor*) and `*kv-env` repeats it; Compose ignores top-level keys
+that start with `x-`, so they can hold blocks like this one.
+
 ```file compose.yaml
 ```
 
@@ -77,7 +81,8 @@ docker compose down
 > EPMD on 4369 and a port for each node. Inside one Compose network every
 > port is open; across hosts or firewalls you must open them, or pin the
 > distribution port range (`inet_dist_listen_min`/`inet_dist_listen_max` in
-> `rel/vm.args.eex`).
+> the release's `rel/vm.args.eex`, as on
+> [How Nodes Connect](/distributed/connections)).
 
 > **Pitfall:** the cookie in `compose.yaml` is fine for a demo and nothing
 > else. Anyone with the cookie who can reach the ports can run any code on
