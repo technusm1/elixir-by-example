@@ -139,7 +139,8 @@ defmodule Ebe.Catalog do
         "Running it: look inside a live node, trace it, and change its code without a restart.",
       examples: [
         {"hot-code-loading", "Hot Code Loading"},
-        {"tracing", "Tracing"}
+        {"tracing", "Tracing"},
+        {"memory", "Memory: Copies and Binaries"}
       ],
       project:
         {"kv", "Operate the store",
