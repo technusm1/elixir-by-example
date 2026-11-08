@@ -55,6 +55,7 @@ defmodule Ebe.Catalog do
         {"enum", "Enum"},
         {"comprehensions", "Comprehensions"},
         {"streams", "Streams"},
+        {"erlang-data-structures", "Erlang Data Structures"},
         {"structs", "Structs"},
         {"protocols", "Protocols"},
         {"with", "with"},
