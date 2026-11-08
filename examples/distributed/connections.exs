@@ -48,7 +48,8 @@ IO.inspect(nodes_on.(a, :visible), label: "conn_a is connected to")
 # only to the nodes it talks to directly, isn't passed
 # on to the rest of the cluster, and isn't listed by
 # `Node.list/0`. Remote shells, monitoring tools and
-# `iex --remsh` sessions should connect this way.
+# `iex --remsh` sessions (an IEx shell attached to a
+# running node) should connect this way.
 {_, h} = start_peer.(:conn_h, [~c"-hidden"])
 
 IO.inspect(Node.list() |> Enum.sort(), label: "Node.list()")
@@ -94,8 +95,10 @@ IO.inspect(:erlang.system_info(:dist_buf_busy_limit), label: "dist buffer busy l
 # > (port 4369) *and* the distribution ports, which are
 # > random by default. Pin them with
 # > `-kernel inet_dist_listen_min 9100 inet_dist_listen_max 9105`
-# > (in a release, in `rel/vm.args.eex`) and open that
-# > range.
+# > and open that range. A
+# > [release](/deployment/releases) reads VM flags like
+# > these from `rel/vm.args.eex`, a file
+# > `mix release.init` creates.
 #
 # > **Pitfall:** don't send big terms between nodes on a
 # > busy cluster: a large state handoff or a big ETS dump
