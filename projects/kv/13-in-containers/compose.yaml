@@ -1,0 +1,19 @@
+# Two KV nodes from one image. Each container's hostname is the host part of
+# its node name (kv@kv-a, kv@kv-b), and Compose's network resolves those
+# names, so the nodes can reach each other.
+x-kv-env: &kv-env
+  RELEASE_DISTRIBUTION: sname
+  RELEASE_NODE: kv
+  # Demo only: real deployments read the cookie from a secret.
+  RELEASE_COOKIE: kv-demo-cookie
+  CLUSTER_NODES: kv@kv-a,kv@kv-b
+
+services:
+  kv-a:
+    build: .
+    hostname: kv-a
+    environment: *kv-env
+  kv-b:
+    build: .
+    hostname: kv-b
+    environment: *kv-env

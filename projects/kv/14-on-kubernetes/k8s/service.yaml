@@ -1,0 +1,16 @@
+# A headless Service (clusterIP: None) has no virtual IP: a DNS lookup of its
+# name returns the IP of every matching pod. That list is what libcluster
+# polls.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kv-headless
+spec:
+  clusterIP: None
+  selector:
+    app: kv
+  # List pods before they are "ready", so nodes can cluster while starting.
+  publishNotReadyAddresses: true
+  ports:
+    - name: epmd
+      port: 4369

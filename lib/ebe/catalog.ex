@@ -126,7 +126,10 @@ defmodule Ebe.Catalog do
       project:
         {"kv", "Ship the store",
          [
-           {"12-a-release", "KV as a release", uses: ["releases", "runtime-config"]}
+           {"12-a-release", "KV as a release", uses: ["releases", "runtime-config"]},
+           {"13-in-containers", "KV in containers", uses: ["containers"], guide: true},
+           {"14-on-kubernetes", "KV on Kubernetes",
+            uses: ["containers", "runtime-config"], guide: true}
          ]}
     }
   ]

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kv
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kv
+  template:
+    metadata:
+      labels:
+        app: kv
+    spec:
+      # Time between SIGTERM and SIGKILL: enough for a clean shutdown.
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: kv
+          image: kv:0.1.0
+          env:
+            # The pod's own IP, filled in by Kubernetes...
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # ...becomes the host part of the node name: kv@10.1.2.3.
+            - name: RELEASE_DISTRIBUTION
+              value: name
+            - name: RELEASE_NODE
+              value: kv@$(POD_IP)
+            - name: RELEASE_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: kv-cookie
+                  key: cookie
+            - name: CLUSTER_SERVICE
+              value: kv-headless
