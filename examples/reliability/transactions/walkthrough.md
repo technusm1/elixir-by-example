@@ -1,12 +1,10 @@
-Everything on the earlier pages kept its state in process memory, and
-everything there was lost on a restart. Data that must survive goes in a
-database, and the database brings a guarantee no process gives you on its
-own: a *transaction*. Several writes either all happen or none of them do,
-even if the program crashes halfway through.
+A database brings a guarantee no process gives you on its own: a
+*transaction*. Several writes either all happen or none of them do, even if
+the program crashes halfway through.
 
-This page uses [Ecto](https://hexdocs.pm/ecto) with SQLite, so the whole
-database is one file and there's nothing to install. Everything shown works
-the same on Postgres.
+This page uses Ecto on SQLite, set up as in [Ecto Basics](/reliability/ecto)
+(repo, migration, schemas, changesets). Everything shown works the same on
+Postgres.
 
 On this page:
 
@@ -20,9 +18,6 @@ On this page:
 
 ```file mix.exs
 ```
-
-Query logging is switched off so the output below shows results, not SQL with
-timings.
 
 ```file config/config.exs
 ```
@@ -43,7 +38,9 @@ writers run at once.
 
 `check_constraint/3` and `unique_constraint/3` don't check anything themselves.
 They tell Ecto that when the database refuses a write for that reason, it
-should return a changeset error instead of raising.
+should return a changeset error instead of raising. These changesets use
+`change/2` instead of `cast/3`: the values come from our own code, not from
+outside, so there's nothing to filter or convert.
 
 ```file lib/bank/account.ex
 ```
@@ -51,25 +48,30 @@ should return a changeset error instead of raising.
 ```file lib/bank/transfer.ex
 ```
 
-`Bank.transfer/4` builds an `Ecto.Multi`: a list of named steps run in one
-transaction. On failure it returns the step that failed, its errors, and the
-steps that had already run (which were rolled back).
+`Bank.transfer/4` builds an `Ecto.Multi`: a list of named steps, run in one
+transaction by `Repo.transact/1`. On success it returns `{:ok, changes}`, a
+map of each step's result by name (`%{debit: ..., credit: ..., record: ...}`).
+On failure it returns `{:error, step, value, changes_so_far}`: the step that
+failed, its changeset, and the steps that had already run (which were rolled
+back). The result is piped straight into `case`, which works like any other
+function call. `errors/1` uses `traverse_errors/2` as in
+[Ecto Basics](/reliability/ecto).
 
 ```file lib/bank.ex
 ```
 
 ## Set up
 
-Fetching and compiling the dependencies prints download progress and timings,
-so that output is hidden. `ecto.create` makes the SQLite file and
-`ecto.migrate` creates the tables.
+The same steps as in [Ecto Basics](/reliability/ecto) (with
+`--pool-size 1`, because SQLite takes one writer at a time), then two
+accounts.
 
 ```sh
 mix deps.get > /dev/null
 mix deps.compile > /dev/null 2>&1
 mix compile
 mix ecto.create --quiet
-mix ecto.migrate --quiet
+mix ecto.migrate --quiet --pool-size 1
 mix run -e 'Bank.open("alice", 100); Bank.open("bob", 50); IO.inspect(Bank.balances())'
 ```
 
@@ -133,7 +135,7 @@ IO.inspect(Bank.balances())
 '
 ```
 
-> **Pitfall:** validations in a changeset (`validate_number/3`) check the
+> **Pitfall:** validations in a changeset (such as `validate_number/3`) check the
 > value *Elixir* computed, from data that may already be stale. Only a
 > constraint in the database sees every write, including concurrent ones and
 > ones from other programs. Keep the rule in the database and use
@@ -141,8 +143,9 @@ IO.inspect(Bank.balances())
 
 > **Pitfall:** the simplest fix for a lost update is to let the database do
 > the arithmetic: `Repo.update_all(from(a in Account, where: a.id == ^id),
-> inc: [balance: 10])`. There's no read, so there's nothing to go stale.
-> Optimistic locking is for changes Elixir has to compute.
+> inc: [balance: 10])` runs one `UPDATE` on every row the query matches, and
+> `inc:` adds to the column inside the database. There's no read, so there's
+> nothing to go stale. Optimistic locking is for changes Elixir has to compute.
 
 > **Pitfall:** don't do slow work (HTTP calls, sending email) inside a
 > transaction. It holds locks the whole time, and if the transaction rolls

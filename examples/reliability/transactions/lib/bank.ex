@@ -22,7 +22,7 @@ defmodule Bank do
     |> Multi.update(:debit, Account.adjust(from, -amount))
     |> Multi.update(:credit, Account.adjust(to, amount))
     |> Multi.insert(:record, Transfer.record(key, from, to, amount))
-    |> Repo.transaction()
+    |> Repo.transact()
     |> case do
       {:ok, _changes} -> :ok
       {:error, step, changeset, _done} -> {:error, step, errors(changeset)}
