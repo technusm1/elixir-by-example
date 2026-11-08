@@ -60,7 +60,9 @@ defmodule JobQueue do
     {:noreply, maybe_idle(%{state | drainers: [from | state.drainers]})}
   end
 
-  # A task finished and returned a value.
+  # A task finished and returned a value. A task
+  # replies with `{ref, result}`, `ref` being its
+  # monitor; `:flush` drops the `:DOWN` that follows.
   @impl true
   def handle_info({ref, result}, state) when is_reference(ref) do
     Process.demonitor(ref, [:flush])
@@ -129,7 +131,8 @@ end
 # The queue and its task supervisor start together under
 # one supervisor. `:rest_for_one` restarts the queue if
 # the task supervisor dies, since the queue's running
-# jobs died with it.
+# jobs died with it. Names like `Jobs.Queue` are just
+# atoms; no module by that name has to exist.
 children = [
   {Task.Supervisor, name: Jobs.Tasks},
   {JobQueue, name: Jobs.Queue, tasks: Jobs.Tasks}
