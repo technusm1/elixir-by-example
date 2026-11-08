@@ -25,9 +25,6 @@ defmodule Ebe.Catalog do
   @no_dist "Needs several connected nodes. Browsers can't open the network sockets " <>
              "Erlang distribution uses, so this one runs on the native BEAM only."
 
-  @no_release "Builds a release with Mix and starts it as separate programs. Browsers " <>
-                "can't run external programs, so this one runs on the native BEAM only."
-
   @tracks [
     %{
       id: "core",
@@ -121,14 +118,13 @@ defmodule Ebe.Catalog do
       blurb:
         "From your laptop to servers: releases, runtime configuration, containers and clusters.",
       examples: [
-        {"releases", "Releases", no_run: @no_release},
-        {"runtime-config", "Runtime Configuration", no_run: @no_release}
+        {"releases", "Releases"},
+        {"runtime-config", "Runtime Configuration"}
       ],
       project:
         {"kv", "Ship the store",
          [
-           {"12-a-release", "KV as a release",
-            uses: ["releases", "runtime-config"], no_run: @no_release}
+           {"12-a-release", "KV as a release", uses: ["releases", "runtime-config"]}
          ]}
     }
   ]
