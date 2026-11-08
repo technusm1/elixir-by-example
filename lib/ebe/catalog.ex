@@ -120,7 +120,8 @@ defmodule Ebe.Catalog do
       examples: [
         {"releases", "Releases"},
         {"runtime-config", "Runtime Configuration"},
-        {"containers", "Containers", guide: true}
+        {"containers", "Containers", guide: true},
+        {"rolling-deploys", "Rolling Deploys"}
       ],
       project:
         {"kv", "Ship the store",
