@@ -29,6 +29,12 @@ Each version is its own small Mix project. Only `lib/tally.ex` changes.
 ```file v1/mix.exs
 ```
 
+`send_add/2` calls the counter on another node by `{name, node}`, as on
+[Leases and Fencing Tokens](/distributed/leases). Its body ends in `catch`: a
+`def` can take `rescue` and `catch` directly, as if wrapped in `try` (see
+[Errors](/core/errors)), so a node whose counter crashed reports `:crashed`
+instead of taking the caller down.
+
 ```file v1/lib/tally.ex
 ```
 
@@ -54,7 +60,12 @@ Each version is its own small Mix project. Only `lib/tally.ex` changes.
 for v in v1 v2 v3; do (cd $v && MIX_ENV=prod mix release --quiet); done
 ```
 
-Two shell functions keep the commands short: `tally v1 a ...` runs the `v1`
+A release reads its node name from `RELEASE_NODE` and its cookie from
+`RELEASE_COOKIE`; every node of the cluster needs the same cookie. The
+commands that talk to a running node (`rpc`, `pid`, `stop`) use `RELEASE_NODE`
+to find it.
+
+Three shell functions keep the commands short: `tally v1 a ...` runs the `v1`
 release as node `tally_a`, `start` starts a node and waits until it's up, and
 `halt` stops one and waits until it's gone.
 
