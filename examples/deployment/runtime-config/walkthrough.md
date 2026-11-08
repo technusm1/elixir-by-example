@@ -1,9 +1,9 @@
 A release is built once and then started on many machines: staging and
 production, three regions, a laptop. Each needs its own settings (database
 address, port, secrets), and secrets must never be baked into the build. But
-`config/config.exs` is evaluated when the release is *built*: whatever it
-reads, it reads on the build machine, and the value is frozen into the
-release.
+`config/config.exs` (see [Mix Projects](/core/mix)) is evaluated when the
+release is *built*: whatever it reads, it reads on the build machine, and the
+value is frozen into the release.
 
 `config/runtime.exs` is the answer: it's evaluated every time the release
 *starts*, on the machine it starts on, so it can read that machine's
@@ -17,7 +17,8 @@ On this page:
 2. `runtime.exs` requires `API_KEY`. Started without it, the release refuses
    to boot and says why.
 3. A value read with `Application.compile_env/2` is frozen into the compiled
-   code. Changing it at runtime is caught at boot.
+   code (see [Applications and Configuration](/otp/applications)). Changing it
+   at runtime is caught at boot.
 
 ## The project
 
