@@ -140,7 +140,8 @@ defmodule Ebe.Catalog do
       examples: [
         {"hot-code-loading", "Hot Code Loading"},
         {"tracing", "Tracing"},
-        {"memory", "Memory: Copies and Binaries"}
+        {"memory", "Memory: Copies and Binaries"},
+        {"agent-access", "Letting Agents Debug Production"}
       ],
       project:
         {"kv", "Operate the store",
