@@ -42,9 +42,10 @@ end
 # **1. Cap the work in flight.** Callers bump a shared
 # counter before they call and drop it afterwards. With
 # the counter at the limit, a caller is refused at once,
-# without even sending a message. `:atomics.add_get/3`
-# is atomic, so concurrent callers can't both take the
-# last slot.
+# without even sending a message. The counter is an
+# atomic (see [Atomics](/otp/atomics)):
+# `:atomics.add_get/3` adds and reads in one step, so
+# concurrent callers can't both take the last slot.
 defmodule Admission do
   def new, do: :atomics.new(1, [])
 
