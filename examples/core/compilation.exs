@@ -23,7 +23,9 @@ IO.inspect(Code.string_to_quoted!("1 + 2 * x"), label: "AST")
 
 # `quote` gives the AST of code written inline.
 # `Macro.expand/2` runs one macro and returns the code
-# it produces. `unless` turns out to be a `case` with a
+# it produces. It needs the compile environment
+# (imports, aliases) to expand in, and `__ENV__` is the
+# current one. `unless` turns out to be a `case` with a
 # guard that treats both `false` and `nil` as false:
 ast = quote do: unless(ok?, do: :retry)
 IO.puts(ast |> Macro.expand(__ENV__) |> Macro.to_string())
@@ -36,7 +38,8 @@ IO.puts(piped |> Macro.prewalk(&Macro.expand(&1, __ENV__)) |> Macro.to_string())
 
 # Stages 3 and 4. `defmodule` returns the compiled
 # bytecode, the same bytes `mix compile` writes to a
-# `.beam` file.
+# `.beam` file (Mix is the build tool, see
+# [Mix Projects](/core/mix)).
 {:module, Shapes, bytecode, _} =
   defmodule Shapes do
     def area({:square, side}), do: side * side
@@ -53,7 +56,9 @@ IO.inspect(chunks[:exports], label: "exports")
 # The debug-info chunk keeps the code in a form tools
 # can read back. Asking for it as Erlang shows the
 # module as the Erlang compiler saw it: the same clauses
-# and guard, with variables renamed.
+# and guard, with variables renamed. `backend` holds a
+# module name, and a variable holding a module can be
+# called like the module itself.
 {:debug_info_v1, backend, data} = chunks[:debug_info]
 {:ok, forms} = backend.debug_info(:erlang_v1, Shapes, data, [])
 
