@@ -12,7 +12,9 @@ IO.puts(:stderr, "this goes to standard error")
 
 # `IO.inspect/2` prints any value in its Elixir form
 # and *returns it unchanged*, so you can drop it into
-# the middle of an expression to debug it.
+# the middle of an expression to debug it. The pipe
+# `|>` passes the value on its left as the first
+# argument to the call on its right.
 [1, 2, 3] |> IO.inspect(label: "list") |> Enum.sum() |> IO.inspect(label: "sum")
 
 # > **Pitfall:** `IO.puts/1` wants something printable
