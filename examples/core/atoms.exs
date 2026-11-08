@@ -20,7 +20,8 @@ IO.inspect(String == :"Elixir.String")
 IO.inspect(:math.sqrt(16))
 
 # The idiom you'll see everywhere: tagged tuples, an
-# atom first saying what happened.
+# atom first saying what happened. A tuple is a
+# fixed-size group of values in curly braces.
 IO.inspect(File.read("does-not-exist.txt"))
 IO.inspect(Integer.parse("42abc"))
 
@@ -28,6 +29,9 @@ IO.inspect(Integer.parse("42abc"))
 IO.inspect(Atom.to_string(:hello))
 IO.inspect(String.to_existing_atom("hello"))
 
+# An unknown name raises an error. `try ... rescue`
+# catches it so the script can go on (more in
+# [Errors](/core/errors)).
 try do
   String.to_existing_atom("never_seen_before_xyz")
 rescue
