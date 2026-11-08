@@ -152,7 +152,11 @@ IO.inspect(:code.soft_purge(Counter), label: "soft purge")
 # Version 3 changes the *shape* of the state: a map
 # instead of an integer. Loading it doesn't change the
 # integers both processes hold, so the new callbacks get
-# state they don't understand.
+# state they don't understand. `:sys` is OTP's module
+# for reaching into any OTP process (GenServer, Agent,
+# Supervisor...) from outside: `:sys.get_state/1`
+# returns its current state without going through its
+# callbacks.
 defmodule Counter do
   use GenServer
 
@@ -173,6 +177,12 @@ end
 
 IO.inspect(:sys.get_state(b), label: "b's state after load")
 
+# When the server crashes during a call, the caller
+# exits with `{reason, {GenServer, :call, args}}`, and
+# a crash in a callback makes the reason an
+# `{error, stacktrace}` pair. Here the error is
+# `{:badmap, 2}`: `s.count` on the integer 2.
+
 try do
   GenServer.call(b, :bump)
 catch
@@ -191,8 +201,10 @@ IO.inspect(GenServer.call(a, :bump), label: "a bump")
 IO.inspect(GenServer.call(a, :peek), label: "a peek")
 
 # This suspend, load, change_code, resume dance is what a
-# release *upgrade* (an appup) does for every process
-# whose child spec lists the module under `modules:`.
+# release *upgrade* does for every process whose child
+# spec lists the module under `modules:`, following an
+# *appup* file: per application, the steps from one
+# version to the next.
 # Most teams skip it: they keep the state shape
 # compatible, or roll out new nodes and let processes
 # restart with fresh state (see
