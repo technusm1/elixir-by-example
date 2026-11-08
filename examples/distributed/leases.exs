@@ -111,6 +111,9 @@ end
 # `from.(peer, request)` makes the call *from* that node:
 # node a or b talks to the store on node db over Erlang
 # distribution, as it would talk to a real database.
+# `{LeaseStore, db}` addresses the process registered
+# as `LeaseStore` on node `db`: a `{name, node}` tuple
+# works wherever a pid does, in `send/2` and in calls.
 from = fn peer, request -> :peer.call(peer, GenServer, :call, [{LeaseStore, db}, request]) end
 
 # Step 1. The lease lasts 10 seconds. Node a gets it with
@@ -153,20 +156,25 @@ IO.inspect(from.(peer_a, {:acquire, a, 10}), label: "a asks again")
 #
 # * **A database row.** A `leases` table with the holder,
 #   an expiry and a token that grows on every takeover,
-#   updated in a transaction. A fenced write checks, in
-#   the same transaction, that no bigger token has been
-#   seen. Oban's default leader election,
-#   `Oban.Peers.Database`, keeps its leader as a row with
-#   an expiry in the `oban_peers` table.
-# * **A Kubernetes Lease** (`coordination.k8s.io/v1`).
-#   It has `holderIdentity`, `leaseDurationSeconds`,
+#   updated in a transaction (all of it happens or none
+#   of it does; see
+#   [Transactions and Constraints](/reliability/transactions)).
+#   A fenced write checks, in the same transaction, that
+#   no bigger token has been seen. Oban's default leader
+#   election, `Oban.Peers.Database`, keeps its leader as
+#   a row with an expiry in the `oban_peers` table.
+# * **A Kubernetes Lease** (`coordination.k8s.io/v1`),
+#   an object the Kubernetes API stores for you. It has
+#   `holderIdentity`, `leaseDurationSeconds`,
 #   `renewTime`, and `leaseTransitions`, a counter that
 #   grows on every change of holder and can serve as the
 #   fencing token.
-# * **A consensus log** such as `ra` (Raft for Erlang) or
-#   Khepri, the replicated store built on `ra` that
-#   RabbitMQ uses. No external service, but it only makes
-#   progress while a majority of its nodes are up, so
+# * **A consensus log**, where nodes agree by majority
+#   vote on one ordered list of changes, such as `ra`
+#   (the Raft algorithm for Erlang) or Khepri, the
+#   replicated store built on `ra` that RabbitMQ uses.
+#   No external service, but it only makes progress
+#   while a majority of its nodes are up, so
 #   clusters usually have 3 or 5 nodes.
 #
 # > **Pitfall:** the holder must stop *before* its lease
