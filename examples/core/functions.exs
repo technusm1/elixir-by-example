@@ -35,7 +35,10 @@ IO.inspect(upcase.("elixir"))
 IO.inspect(Enum.map(["a", "b"], &String.upcase/1))
 
 # `&` also builds short anonymous functions, with
-# `&1`, `&2` as the arguments.
+# `&1`, `&2` as the arguments. `Enum.reduce/3` folds a
+# list into one value: it starts from `0` and calls
+# the function with each element and the running
+# total.
 double = &(&1 * 2)
 IO.inspect(Enum.map([1, 2, 3], double))
 IO.inspect(Enum.reduce([1, 2, 3], 0, &(&1 + &2)))
