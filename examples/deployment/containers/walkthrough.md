@@ -34,8 +34,17 @@ This follows the Dockerfile Phoenix generates (`mix phx.gen.release --docker`),
 trimmed to what this project needs: it has no dependencies, configuration or
 assets.
 
+A Dockerfile is a recipe for an image. `FROM` starts from an existing image,
+`RUN` runs a command while building, `COPY` copies files in, `ENV` sets an
+environment variable and `CMD` is the command the container starts with. Each
+instruction adds a *layer*, which Docker caches and reuses until something it
+depends on changes.
+
 The first stage starts from an image with Elixir and Erlang installed and runs
-`mix release`. The second starts from plain Debian, installs the few libraries
+`mix release`. Before that, `mix local.hex` and `mix local.rebar` install Hex
+and rebar (the build tool for Erlang dependencies) into the fresh image, and
+`mix deps.get` and `mix deps.compile` fetch and build dependencies as on
+[Mix Projects](/core/mix). The second starts from plain Debian, installs the few libraries
 the runtime needs, and copies in only the release. The image you ship
 contains no compiler, no Mix and no source code.
 
