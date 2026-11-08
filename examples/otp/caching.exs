@@ -29,7 +29,8 @@ defmodule NaiveCache do
 end
 
 # A loader that takes 50 ms and counts its calls in a
-# `:counters` array, which any process can bump.
+# `:counters` array, which any process can bump (see
+# [Atomics, Counters and persistent_term](/otp/atomics)).
 loads = :counters.new(1, [])
 
 loader = fn ->
@@ -92,6 +93,9 @@ defmodule Cache do
         {:reply, {:ok, value}, state}
 
       # Already loading: join the waiters.
+      # `update_in(state.waiting[key], f)` applies `f`
+      # to the value at that path and returns the
+      # whole updated state.
       Map.has_key?(state.waiting, key) ->
         {:noreply, update_in(state.waiting[key], &[from | &1])}
 
