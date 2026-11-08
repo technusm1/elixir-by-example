@@ -135,10 +135,9 @@ defmodule Ebe.Pages do
           <header>
             <span class="track-no">{String.pad_leading("#{length(@tracks) + 1}", 2, "0")}</span>
             <div>
-              <h2>Production <span class="tag">coming next</span></h2>
+              <h2>Phoenix and LiveView <span class="tag">coming next</span></h2>
               <p>
-                Running it: remote shells, tracing, hot code reloading, and letting coding
-                agents debug a live system safely.
+                Web applications on the BEAM: HTTP, real-time pages and the processes behind them.
               </p>
             </div>
           </header>

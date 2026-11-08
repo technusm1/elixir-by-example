@@ -131,6 +131,22 @@ defmodule Ebe.Catalog do
            {"14-on-kubernetes", "KV on Kubernetes",
             uses: ["containers", "runtime-config"], guide: true}
          ]}
+    },
+    %{
+      id: "production",
+      title: "Production",
+      blurb:
+        "Running it: look inside a live node, trace it, and change its code without a restart.",
+      examples: [
+        {"hot-code-loading", "Hot Code Loading"},
+        {"tracing", "Tracing"}
+      ],
+      project:
+        {"kv", "Operate the store",
+         [
+           {"15-debugging-live", "Debugging KV live",
+            uses: ["tracing", "hot-code-loading", "releases"]}
+         ]}
     }
   ]
 
