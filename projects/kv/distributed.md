@@ -18,7 +18,8 @@ with Erlang/OTP:
 
 4. **Form the cluster with libcluster.** Nodes find and connect to each
    other on their own, and reconnect after a dropped connection. libcluster
-   is a Hex package, so this step installs it with `Mix.install/1`.
+   is a Hex package, so this step installs it with `Mix.install/1` (see
+   [Mix Projects](/core/mix)).
 
 ## Running these examples
 

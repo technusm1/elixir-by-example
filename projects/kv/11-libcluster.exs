@@ -21,7 +21,8 @@
 #    libcluster connects them again.
 #
 # libcluster is a Hex package, so the script installs it
-# first with `Mix.install/1`. The quiet shell keeps its
+# first with `Mix.install/1` (see
+# [Mix Projects](/core/mix)). The quiet shell keeps its
 # download and compile messages out of the output (so
 # the first run is silent for a few seconds); it needs
 # Mix started before it can be set.
