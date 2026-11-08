@@ -72,7 +72,11 @@ IO.puts("t=200  refused again")
 # To share limits across a whole program, put one bucket
 # per key (a client, a user id) in a GenServer. The clock
 # is a function, passed in when the server starts: the
-# real one by default, a fake one in this demo.
+# real one by default, a fake one in this demo. The
+# real one is monotonic time, which only moves forward;
+# the wall clock can jump when the system time is
+# adjusted. `put_in(state.buckets[key], bucket)` sets
+# the value at that path inside the state.
 defmodule Limiter do
   use GenServer
 
@@ -120,6 +124,9 @@ IO.inspect(Limiter.allow(limiter, :alice), label: "alice at t=1000")
 # For a hot path, keep the counts in ETS instead.
 # `:ets.update_counter/4` increments atomically, so
 # concurrent callers never need a process in between.
+# Here `{2, 1}` adds 1 to the row's second element,
+# and `{slot, 0}` is the row to insert first when the
+# key is missing.
 # This version uses a *fixed window*: at most `limit`
 # requests per key in each window of `window` ms. The
 # window's number is part of the key.
