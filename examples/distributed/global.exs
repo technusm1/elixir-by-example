@@ -47,14 +47,17 @@ IO.inspect(node(existing), label: "already started on")
 
 # When the owner's node dies, the name is released, so
 # another node can take over. That happens when the
-# cluster notices the node is gone, a moment later, so
-# we wait for it instead of assuming it is instant.
+# cluster notices the node is gone, a moment later, and
+# each node notices on its own. So we wait until both
+# this node and b, which will register next, see the
+# name free, instead of assuming it is instant.
 :peer.stop(peer_a)
 
 wait_until_free = fn again ->
-  case :global.whereis_name(:leader) do
-    :undefined -> :free
-    _pid -> Process.sleep(10) && again.(again)
+  if Enum.all?([node(), b], &(:erpc.call(&1, :global, :whereis_name, [:leader]) == :undefined)) do
+    :free
+  else
+    Process.sleep(10) && again.(again)
   end
 end
 
