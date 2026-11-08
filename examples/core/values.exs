@@ -32,6 +32,7 @@ IO.puts("1 + 1 = #{1 + 1}")
 # numbers by value, `===` also checks the type.
 IO.inspect(1 == 1.0)
 IO.inspect(1 === 1.0)
+# `:atom` is an atom, a named constant (next page).
 IO.inspect(1 < :atom)
 
 # Check types with the `is_*` functions.
