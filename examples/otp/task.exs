@@ -24,6 +24,10 @@ IO.inspect(results, label: "async_stream")
 # Each job below returns how many jobs were running when
 # it started (an `:atomics` counter shared by all of
 # them). The peak never goes past `max_concurrency`.
+# `:atomics` is a fixed array of integers any process
+# can change in place; `add_get` adds and returns the
+# new value in one step (more in
+# [Atomics, Counters and persistent_term](/otp/atomics)).
 running = :atomics.new(1, [])
 
 peak =
@@ -74,7 +78,10 @@ end
 # `Task.async` *links* the task to the caller, so a
 # crashing task crashes the caller too. For work that
 # may fail, start tasks under a `Task.Supervisor` with
-# `async_nolink` and handle the failure as a value.
+# `async_nolink` and handle the failure as a value. A
+# supervisor is a process that starts other processes
+# and watches them (more in
+# [Supervisors](/otp/supervisors)).
 Logger.configure(level: :none)
 {:ok, sup} = Task.Supervisor.start_link()
 
@@ -108,8 +115,9 @@ end
 # > item holds up everything until it times out. Set it
 # > explicitly to what the work needs.
 #
-# > **Pitfall:** calling `Task.async` inside a GenServer
-# > and never awaiting it leaves a reply message (and a
-# > `:DOWN`) in the GenServer's mailbox. Either await
+# > **Pitfall:** calling `Task.async` inside a
+# > [GenServer](/otp/genserver) and never awaiting it
+# > leaves a reply message (and a `:DOWN`) in the
+# > GenServer's mailbox. Either await
 # > it, or use `Task.Supervisor.async_nolink` and handle
 # > `{ref, result}` and `{:DOWN, ...}` in `handle_info`.
