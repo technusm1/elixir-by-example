@@ -20,6 +20,47 @@ results =
 
 IO.inspect(results, label: "async_stream")
 
+# That limit turns `async_stream` into a worker pool.
+# Each job below returns how many jobs were running when
+# it started (an `:atomics` counter shared by all of
+# them). The peak never goes past `max_concurrency`.
+running = :atomics.new(1, [])
+
+peak =
+  1..20
+  |> Task.async_stream(
+    fn _ ->
+      now = :atomics.add_get(running, 1, 1)
+      Process.sleep(10)
+      :atomics.sub(running, 1, 1)
+      now
+    end,
+    max_concurrency: 4
+  )
+  |> Enum.map(fn {:ok, now} -> now end)
+  |> Enum.max()
+
+IO.inspect(peak, label: "most jobs running at once")
+
+# Results come back in input order by default, so one
+# slow item holds back everything after it.
+# `ordered: false` hands over each result as soon as
+# it's ready. `timeout:` with `on_timeout: :kill_task`
+# turns a stuck item into `{:exit, :timeout}` instead of
+# crashing the caller.
+[:stuck, 1, 2]
+|> Task.async_stream(
+  fn
+    :stuck -> Process.sleep(:infinity)
+    n -> n * 10
+  end,
+  max_concurrency: 3,
+  ordered: false,
+  timeout: 500,
+  on_timeout: :kill_task
+)
+|> Enum.each(&IO.inspect(&1, label: "unordered"))
+
 # `Task.yield/2` waits up to a timeout and returns
 # `nil` if the task isn't done, so *you* decide what
 # to do. `Task.shutdown/2` then stops it.
@@ -58,6 +99,14 @@ end
 # > timeout, and on timeout it *exits the caller*. It
 # > doesn't return an error tuple. Pass a timeout that
 # > fits the work, or use `yield`/`shutdown`.
+#
+# > **Pitfall:** `max_concurrency` defaults to the
+# > number of schedulers, usually one per CPU core. On a
+# > machine with one scheduler (a small container, or
+# > the browser runtime behind the Run button) the
+# > stream runs one item at a time, and a stuck first
+# > item holds up everything until it times out. Set it
+# > explicitly to what the work needs.
 #
 # > **Pitfall:** calling `Task.async` inside a GenServer
 # > and never awaiting it leaves a reply message (and a
