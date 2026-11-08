@@ -31,6 +31,9 @@ IO.inspect(x)
 
 expected = :ok
 
+# `case` tries a value against patterns in order and
+# runs the first one that matches (more in
+# [Case, Cond and If](/core/case-cond-if)).
 case {:ok, "done"} do
   {^expected, msg} -> IO.puts("pinned match: #{msg}")
 end
@@ -51,9 +54,18 @@ case {1, 2} do
   {_, _} -> IO.puts("different")
 end
 
+# Two more forms you'll meet later. `pattern = var`
+# inside a pattern checks the shape *and* binds the
+# whole value: `{:ok, _} = reply` keeps all of
+# `reply`. `match?(pattern, value)` returns `true` or
+# `false` instead of raising.
+#
 # Matching works in function heads, `case`, `with`,
 # and comprehensions. It's the main way Elixir code
-# makes decisions.
+# makes decisions. `fn args -> body end` is an
+# anonymous function; it can have several clauses,
+# tried in order like `case`. Call it with a dot:
+# `handle.(x)`.
 handle = fn
   {:ok, value} -> "got #{value}"
   {:error, reason} -> "failed: #{reason}"
