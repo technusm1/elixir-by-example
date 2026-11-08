@@ -5,6 +5,9 @@
 # `spawn/1` starts a function in a new process and
 # returns immediately. The new process runs
 # concurrently with the one that spawned it.
+# `self()` is the current process's pid (its
+# address), `send/2` mails it a message, and `receive`
+# waits for one (more in [Messages](/otp/messages)).
 parent = self()
 
 spawn(fn ->
@@ -51,6 +54,9 @@ IO.puts("sum of squares 1..#{n}: #{Enum.sum(squares)}")
 # A process ends when its function returns. A crash
 # in a plain `spawn`ed process doesn't affect its
 # parent, which is the start of "let it crash".
+# `Process.monitor/1` asks for a `:DOWN` message when
+# the process exits (more in
+# [Links and Monitors](/otp/links-and-monitors)).
 pid = spawn(fn -> :ok end)
 ref = Process.monitor(pid)
 
@@ -69,7 +75,8 @@ IO.inspect(len, label: "messages waiting")
 # > crash notifications. In real code, start processes
 # > under a supervisor (`Task.Supervisor`,
 # > `DynamicSupervisor`) so they're restarted, shut
-# > down cleanly, and visible in observer tools.
+# > down cleanly, and visible in observer tools. See
+# > [Task](/otp/task) and [Supervisors](/otp/supervisors).
 #
 # > **Pitfall:** sending a large data structure to
 # > another process *copies* it (except large binaries,
