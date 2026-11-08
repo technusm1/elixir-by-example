@@ -21,6 +21,10 @@ for n <- [node(), a, b], do: :ok = :erpc.call(n, :global, :sync, [])
 
 # A GenServer registered with `name: {:global, ...}`.
 # The module has to exist on every node that runs it.
+# It uses `GenServer.start/3`, not `start_link`:
+# `:erpc.call/4` runs in a short-lived process on the
+# remote node, and a process linked to it would die
+# with it as soon as the call returns.
 {:module, Leader, bytecode, _} =
   defmodule Leader do
     use GenServer
@@ -82,3 +86,7 @@ IO.inspect(GenServer.call({:global, :leader}, :where), label: "new leader runs o
 # > keeps one and, by default, kills the other process.
 # > A "singleton" can briefly run twice, so its work
 # > must tolerate that (idempotent writes, fencing).
+# > [Partitions and Split Brain](/distributed/partitions)
+# > shows it happen, and
+# > [Leases and Fencing Tokens](/distributed/leases)
+# > how to guard against it.
