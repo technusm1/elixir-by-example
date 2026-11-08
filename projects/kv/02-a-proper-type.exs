@@ -10,6 +10,8 @@ defmodule KV do
   @enforce_keys [:data, :max_keys]
   defstruct [:data, :max_keys]
 
+  # `@type` names a type for docs and tools (see
+  # [Typespecs and Types](/core/typespecs)).
   @type key :: String.t()
   @type t :: %__MODULE__{data: %{key() => term()}, max_keys: pos_integer()}
 
@@ -21,6 +23,7 @@ defmodule KV do
   # `put/3` validates, then writes. Each check returns
   # `:ok` or `{:error, reason}`; `with` runs them in
   # order and stops at the first one that doesn't match.
+  # `%KV{} = kv` accepts only a KV and binds all of it.
   @spec put(t(), key(), term()) :: {:ok, t()} | {:error, atom()}
   def put(%KV{} = kv, key, value) do
     with :ok <- check_key(key),
