@@ -28,6 +28,9 @@ defmodule Ebe.Catalog do
   @no_os "Starts operating-system programs, which a browser tab can't do, " <>
            "so this one runs on the native BEAM only."
 
+  @no_tools "Uses OTP's profiling tools (the `tools` application), which the " <>
+              "in-browser runtime doesn't include, so this one runs on the native BEAM only."
+
   @tracks [
     %{
       id: "core",
@@ -147,6 +150,7 @@ defmodule Ebe.Catalog do
         {"memory", "Memory: Copies and Binaries"},
         {"mailboxes", "Mailboxes and Slow Consumers"},
         {"schedulers", "Schedulers and Reductions", args: ["--erl", "+S 1"]},
+        {"profiling", "Profiling", no_run: @no_tools},
         {"agent-access", "Letting Agents Debug Production"}
       ],
       project:
