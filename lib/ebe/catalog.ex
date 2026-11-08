@@ -62,7 +62,8 @@ defmodule Ebe.Catalog do
         {"with", "with"},
         {"errors", "Errors and Tagged Tuples"},
         {"sigils", "Sigils"},
-        {"compilation", "From Source to BEAM"}
+        {"compilation", "From Source to BEAM"},
+        {"mix", "Mix Projects"}
       ],
       project:
         {"kv", "Build a key-value store",
