@@ -26,6 +26,9 @@ end
 # By default it prints a table that includes pids;
 # `report: :return` hands back the data instead, so we
 # can print the rows our own way: busiest function last.
+# Each row is `{module, function, arity, per_process}`,
+# where `per_process` lists `{pid, calls, words}` for
+# every process that ran the function; we add them up.
 profile = fn label, fun ->
   {_result, {:call_memory, rows}} =
     :tprof.profile(fun, %{type: :call_memory, report: :return})
