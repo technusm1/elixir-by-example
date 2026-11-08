@@ -5,6 +5,8 @@
 defmodule KV do
   defstruct buckets: %{}
 
+  # `Map.update/4` inserts a new bucket holding the
+  # default, or runs the function on the existing one.
   def put(%KV{} = kv, bucket, key, value) do
     %{kv | buckets: Map.update(kv.buckets, bucket, %{key => value}, &Map.put(&1, key, value))}
   end
@@ -20,7 +22,8 @@ end
 
 # A protocol is an interface dispatched on the data
 # type. Anyone can implement it for their own types,
-# later, without touching KV.
+# later, without touching KV. `Enum.map_join/3` maps
+# each item and joins the results with a separator.
 defprotocol KV.Codec do
   @doc "Encodes a value as a single line of text."
   def encode(value)
@@ -52,6 +55,8 @@ IO.inspect(KV.get(kv, "nope", "x"), label: "missing bucket")
 
 # Export with an Enum pipeline: flatten buckets into
 # rows, sort them, encode each value via the protocol.
+# `Enum.flat_map/2` maps each bucket to a list of rows
+# and concatenates the lists.
 kv.buckets
 |> Enum.flat_map(fn {bucket, data} -> Enum.map(data, fn {k, v} -> {bucket, k, v} end) end)
 |> Enum.sort()
@@ -59,7 +64,8 @@ kv.buckets
 |> Enum.each(&IO.puts/1)
 
 # Values without an implementation fail loudly, which
-# is better than writing something unreadable.
+# is better than writing something unreadable. The
+# exception's `value` field holds the offending value.
 try do
   KV.Codec.encode(%{a: 1})
 rescue
