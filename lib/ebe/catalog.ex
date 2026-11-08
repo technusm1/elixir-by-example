@@ -95,7 +95,8 @@ defmodule Ebe.Catalog do
         {"rate-limiting", "Rate Limiting"},
         {"circuit-breaker", "Circuit Breaker"},
         {"process-dictionary", "The Process Dictionary"},
-        {"ports-and-nifs", "Ports and NIFs", no_run: @no_os}
+        {"ports-and-nifs", "Ports and NIFs", no_run: @no_os},
+        {"applications", "Applications and Configuration"}
       ],
       project:
         {"kv", "Make the store concurrent",
