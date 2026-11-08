@@ -21,6 +21,7 @@ IO.inspect(String.upcase(s))
 IO.inspect(String.reverse(s))
 IO.inspect(String.split("a,b,,c", ","))
 IO.inspect(String.split("  many   spaces  "))
+# `1..3` is a range, both ends included.
 IO.inspect(String.slice("elixir", 1..3))
 
 # Interpolation calls `to_string/1` on the value.
@@ -28,17 +29,23 @@ n = 42
 IO.puts("n is #{n}")
 
 # Binaries can be pattern matched, which makes parsing
-# prefixes cheap.
+# prefixes cheap. `=` is a match, not just an
+# assignment: the left side is a pattern, and its
+# variables bind to the matching parts of the right.
 "user:" <> id = "user:1234"
 IO.inspect(id)
 
+# `<<>>` takes a binary apart piece by piece: here
+# one UTF-8 codepoint, then the rest (more in
+# [Binaries and Bitstrings](/core/binaries)).
 <<first::utf8, rest::binary>> = s
 IO.inspect(first)
 IO.inspect(rest)
 
 # Single quotes make a *charlist*: a list of integer
 # codepoints, mostly for calling Erlang APIs. Modern
-# Elixir prints them with the `~c` sigil.
+# Elixir prints them with the `~c` sigil, a
+# `~`-prefixed literal (more in [Sigils](/core/sigils)).
 IO.inspect(~c"abc")
 IO.inspect(~c"abc" == [97, 98, 99])
 IO.inspect(to_string(~c"abc"))
