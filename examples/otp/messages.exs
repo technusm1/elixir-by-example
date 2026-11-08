@@ -33,7 +33,9 @@ after
 end
 
 # `after 0` checks the mailbox without waiting. A
-# common idiom to drain all pending messages.
+# common idiom to drain all pending messages. An
+# anonymous function can't call itself by name, so
+# `drain` takes itself as an argument to recurse.
 for i <- 1..3, do: send(self(), {:job, i})
 
 drain = fn drain, acc ->
