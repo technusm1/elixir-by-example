@@ -1,9 +1,10 @@
-So far every program ran with `elixir file.exs` or `mix run`. That needs
-Elixir, Mix and your source code on the machine, compiles on start, and gives
-you no standard way to start the app in the background, connect to it, or stop
-it. Servers want something else: one directory that holds the compiled app,
-its dependencies and the Erlang runtime, plus a script to operate it. That
-directory is a *release*, and `mix release` builds it.
+So far every program ran with `elixir file.exs`, or with `mix run` inside a
+Mix project (see [Mix Projects](/core/mix)). That needs Elixir, Mix and your
+source code on the machine, compiles on start, and gives you no standard way
+to start the app in the background, connect to it, or stop it. Servers want
+something else: one directory that holds the compiled app, its dependencies
+and the Erlang runtime, plus a script to operate it. That directory is a
+*release*, and `mix release` builds it.
 
 On this page:
 
@@ -14,13 +15,16 @@ On this page:
 
 ## The project
 
-An ordinary Mix project. Nothing in it is specific to releases: `mix release`
-works with any application.
+An ordinary Mix project (see [Mix Projects](/core/mix)) whose application
+starts a supervision tree (see
+[Applications and Configuration](/otp/applications)). Nothing in it is
+specific to releases: `mix release` works with any application.
 
 ```file mix.exs
 ```
 
-The application starts one process, a counter, under a supervisor.
+The application starts one process, a counter, under a supervisor. The bare
+module name in the children list means `{Greeter.Counter, []}`.
 
 ```file lib/greeter/application.ex
 ```
@@ -30,8 +34,8 @@ The application starts one process, a counter, under a supervisor.
 
 ## Build the release
 
-`MIX_ENV=prod` compiles with production settings; releases are almost always
-built that way.
+`MIX_ENV=prod` builds in the `prod` environment, into `_build/prod` (see
+[Mix Projects](/core/mix)). Releases are almost always built that way.
 
 ```sh
 MIX_ENV=prod mix release
