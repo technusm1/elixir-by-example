@@ -130,18 +130,6 @@ defmodule Ebe.Pages do
             </ol>
           </div>
         </section>
-
-        <section class="track-card soon">
-          <header>
-            <span class="track-no">{String.pad_leading("#{length(@tracks) + 1}", 2, "0")}</span>
-            <div>
-              <h2>Phoenix and LiveView <span class="tag">coming next</span></h2>
-              <p>
-                Web applications on the BEAM: HTTP, real-time pages and the processes behind them.
-              </p>
-            </div>
-          </header>
-        </section>
       </main>
     </.layout>
     """
