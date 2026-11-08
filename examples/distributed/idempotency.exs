@@ -140,9 +140,11 @@ run.(
 # > least as long as a client might retry, and the
 # > memory has to survive restarts, or a retry after a
 # > crash charges again. In practice the keys live in
-# > the database, with a unique index, written in the
-# > same transaction as the work (see
-# > [The Outbox Pattern](/reliability/outbox)).
+# > the database, written in the same transaction as
+# > the work, so both are saved or neither is. A
+# > *unique index* on the key column makes the database
+# > itself refuse a second row with the same key (see
+# > [Transactions and Constraints](/reliability/transactions)).
 #
 # > **Pitfall:** between two connected nodes, Erlang
 # > delivers messages in order and never twice. That
@@ -151,8 +153,9 @@ run.(
 # > which ones. Retries are how you get the work done,
 # > and idempotency is what makes them safe.
 #
-# Since OTP 24, `GenServer.call/3` uses a process
-# *alias* for the reply, and the alias is deactivated
+# Since OTP 24, `GenServer.call/3` sends the reply to a
+# process *alias*: an extra address for the caller,
+# which it can switch off. The alias is deactivated
 # when the call times out. A reply that arrives late is
 # dropped, so a timed-out call doesn't leave a stray
 # message in the caller's mailbox:
