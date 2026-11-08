@@ -1,3 +1,11 @@
+Kubernetes runs containers across a group of machines. Its unit is the *pod*:
+one or more containers that run together and share an IP address. You describe
+what you want as objects in YAML files and apply them with `kubectl`. A
+**Deployment** keeps a given number of identical pods running, replacing any
+that die and rolling out a new version pod by pod. A **Service** gives a set
+of pods one DNS name. A **Secret** holds sensitive values, such as the cookie,
+which pods read as environment variables or files.
+
 On Compose (step 13) we named every node ourselves: `kv@kv-a`, `kv@kv-b`, and a
 fixed `CLUSTER_NODES` list. On Kubernetes that list doesn't exist. Pods come
 and go, get a new IP each time they start, and you scale them up and down
@@ -89,7 +97,9 @@ kubectl scale deployment/kv --replicas=4
 > **Pitfall:** a new pod starts with an empty store, and a rolling update
 > replaces *every* pod. With this KV (in-memory replicas, as in step 8) a
 > rollout can lose all data. Data that must survive belongs in a database, or
-> in Mnesia with `disc_copies` on a StatefulSet with persistent volumes.
+> in Mnesia with `disc_copies` on a *StatefulSet* (like a Deployment, but
+> each pod keeps a stable name and its own disk, a persistent volume, across
+> restarts).
 
 > **Pitfall:** pod IPs change on every restart, so node names change too.
 > Anything that remembers node names (Mnesia's schema, for one) needs stable
@@ -98,9 +108,10 @@ kubectl scale deployment/kv --replicas=4
 > names instead of their IPs.
 
 > **Pitfall:** `publishNotReadyAddresses: true` lets nodes find each other
-> before they pass their readiness probe. Without it, a pod that waits for the
-> cluster before becoming ready, and a cluster that waits for ready pods, wait
-> for each other forever.
+> before they pass their *readiness probe*, the check (an HTTP request or a
+> command) Kubernetes runs to decide whether a pod may receive traffic.
+> Without it, a pod that waits for the cluster before becoming ready, and a
+> cluster that waits for ready pods, wait for each other forever.
 
 > **Pitfall:** Erlang distribution gives anyone holding the cookie full
 > control of every node. Keep the cookie in a Secret, and use a
