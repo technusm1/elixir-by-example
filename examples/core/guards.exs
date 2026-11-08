@@ -1,6 +1,73 @@
 # Guards add conditions to pattern matches with
 # `when`. They work in function heads, `case`, `fn`
 # and comprehensions.
+#
+# Together, function clauses and guards replace most
+# `if` chains. Here is a function that handles an
+# HTTP-style result, written with `if`:
+defmodule WithIf do
+  def handle(result) do
+    if elem(result, 0) == :ok do
+      response = elem(result, 1)
+
+      if response.status in 200..299 do
+        {:ok, response.body}
+      else
+        {:error, {:http, response.status}}
+      end
+    else
+      {:error, elem(result, 1)}
+    end
+  end
+end
+
+# The same function as clauses. Each clause is one
+# case: the shape it accepts, the condition, the
+# result.
+defmodule WithClauses do
+  def handle({:ok, %{status: status, body: body}}) when status in 200..299, do: {:ok, body}
+  def handle({:ok, %{status: status}}), do: {:error, {:http, status}}
+  def handle({:error, reason}), do: {:error, reason}
+end
+
+results = [
+  {:ok, %{status: 200, body: "hi"}},
+  {:ok, %{status: 404, body: ""}},
+  {:error, :timeout}
+]
+
+Enum.each(results, &IO.inspect(WithClauses.handle(&1)))
+
+same? = Enum.map(results, &WithIf.handle/1) == Enum.map(results, &WithClauses.handle/1)
+IO.inspect(same?, label: "same answers")
+
+# Same answers, but the clause version reads
+# differently. The `if` version takes the value apart
+# by hand (`elem/2`, `.status`), and you find the
+# cases by tracing the nesting. The clause version
+# lists every case flat, with its shape visible.
+# Handling redirects is one more clause, not another
+# level of nesting.
+#
+# Clauses also fail loudly on input nobody planned
+# for. The `if` version quietly sends it down the
+# `else` branch and returns a wrong answer:
+unexpected = Enum.random([{:retry, 3}])
+IO.inspect(WithIf.handle(unexpected))
+
+try do
+  WithClauses.handle(unexpected)
+rescue
+  e in FunctionClauseError -> IO.puts(Exception.message(e))
+end
+
+# `if` is still the right tool for a single yes/no
+# question about a value you already have, like
+# `if temp > 30`. Reach for clauses when you are
+# checking the *shape* of the data as well.
+#
+# Guards can also check types, so one function
+# handles each kind of input in its own clause.
 defmodule Shape do
   def area({:circle, r}) when is_number(r) and r >= 0, do: 3.14159 * r * r
   def area({:rect, w, h}) when is_number(w) and is_number(h), do: w * h

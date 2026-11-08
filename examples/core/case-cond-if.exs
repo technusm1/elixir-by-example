@@ -63,4 +63,5 @@ IO.inspect(count)
 #
 # > **Pitfall:** reaching for nested `if`s is usually a
 # > sign you want `case` on a tuple, or multiple
-# > function clauses.
+# > function clauses. [Guards](/core/guards) puts the
+# > two side by side.
