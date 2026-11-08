@@ -18,7 +18,10 @@
 #   change."
 #
 # Elixir has no wrapper for it, so you call the Erlang
-# module directly.
+# module directly. `@behaviour :gen_statem` declares
+# that this module implements its callbacks (see
+# [Protocols and Behaviours](/core/protocols)); unlike
+# `use GenServer`, it adds no code of its own.
 #
 # A pedestrian crossing. Cars have a light that goes
 # green, yellow, red. A pedestrian calls `cross/1`,
