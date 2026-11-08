@@ -77,7 +77,7 @@ IO.inspect(Process.info(self(), :messages), label: "still waiting")
 # > forget" notifications. Use `call` where the caller
 # > can afford to wait, spread the work over several
 # > processes, or drop work on purpose when the queue is
-# > too long.
+# > too long (see [Load Shedding](/production/load-shedding)).
 #
 # > **Pitfall:** a process with a big mailbox also slows
 # > down garbage collection, because the messages are on

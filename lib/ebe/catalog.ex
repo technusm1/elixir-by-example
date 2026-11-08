@@ -160,6 +160,7 @@ defmodule Ebe.Catalog do
         {"tracing", "Tracing"},
         {"memory", "Memory: Copies and Binaries"},
         {"mailboxes", "Mailboxes and Slow Consumers"},
+        {"load-shedding", "Load Shedding"},
         {"schedulers", "Schedulers and Reductions", args: ["--erl", "+S 1"]},
         {"profiling", "Profiling", no_run: @no_tools},
         {"crash-dumps", "Crash Dumps"},
