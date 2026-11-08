@@ -48,6 +48,10 @@ end
 # The saga runner. A step is a name, an action returning
 # `{:ok, result}` or `{:error, reason}`, and a
 # compensation that receives the action's result.
+# `Enum.reduce_while/3` is `Enum.reduce/3` with an exit:
+# the function returns `{:cont, acc}` to go on to the
+# next step or `{:halt, acc}` to stop, and `acc` is the
+# result either way.
 defmodule Saga do
   def run(steps) do
     result =
