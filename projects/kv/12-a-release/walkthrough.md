@@ -14,7 +14,8 @@ On this page:
 
 ## The project
 
-libcluster is the only dependency.
+libcluster is the only dependency, declared in `deps` and fetched from Hex as
+on [Mix Projects](/core/mix).
 
 ```file mix.exs
 ```
@@ -26,7 +27,10 @@ environment, in `runtime.exs`.
 ```
 
 The supervisor starts `:pg` (the replicas find each other through it), then
-libcluster, then this node's replica.
+libcluster, then this node's replica. `:pg` is an Erlang module without a
+`child_spec/1`, so its child spec is written out as a map: an `id` and the
+`{module, function, args}` that starts it (see
+[Applications and Configuration](/otp/applications)).
 
 ```file lib/kv/application.ex
 ```
