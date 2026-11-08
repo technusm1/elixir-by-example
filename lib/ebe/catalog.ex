@@ -90,6 +90,7 @@ defmodule Ebe.Catalog do
         {"job-queue", "Job Queue"},
         {"registry", "Registry"},
         {"ets", "ETS"},
+        {"atomics", "Atomics, Counters and persistent_term"},
         {"caching", "Caching"},
         {"rate-limiting", "Rate Limiting"},
         {"circuit-breaker", "Circuit Breaker"},
