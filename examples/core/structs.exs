@@ -6,6 +6,9 @@ defmodule User do
   defstruct [:email, name: "anonymous", admin?: false]
 
   # A constructor is the idiomatic place to validate.
+  # `__MODULE__` is the current module's name, and
+  # `struct!/2` builds the struct from a keyword list,
+  # raising on unknown or missing keys.
   def new(fields) do
     user = struct!(__MODULE__, fields)
 
@@ -16,7 +19,8 @@ defmodule User do
 end
 
 # `@enforce_keys` makes a key required. Other keys
-# fall back to their defaults (or `nil`).
+# fall back to their defaults: `name: "anonymous"` in
+# `defstruct`, or `nil` for a bare `:email`.
 {:ok, user} = User.new(email: "ada@example.com")
 IO.inspect(user)
 IO.inspect(User.new(email: "nope"))
@@ -58,7 +62,8 @@ end
 
 # Structs don't get map *behaviours* for free: no
 # `user[:email]` (Access) and no `Enum.count(user)`
-# (Enumerable).
+# (Enumerable). Those are protocols, which a struct
+# opts into (see [Protocols and Behaviours](/core/protocols)).
 try do
   Enum.count(user)
 rescue
