@@ -24,8 +24,9 @@ end
 Countdown.run(3)
 
 # A *tail call* is one where the recursive call is the
-# very last thing the function does. The BEAM reuses
-# the stack frame, so it runs in constant stack space.
+# very last thing the function does. The BEAM (the
+# virtual machine Elixir runs on) reuses the stack
+# frame, so it runs in constant stack space.
 # The usual trick is an accumulator argument.
 defmodule Fact do
   def of(n), do: of(n, 1)
