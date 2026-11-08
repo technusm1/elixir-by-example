@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Versions come from .tool-versions, the same file local asdf uses.
       - uses: erlef/setup-beam@v1
@@ -21,12 +21,12 @@ jobs:
           version-file: .tool-versions
           version-type: strict
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .tool-versions
           cache: npm
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -59,7 +59,7 @@ jobs:
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8787/ && break; sleep 1; done
           npm run verify:browser
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist
@@ -71,12 +71,12 @@ jobs:
     runs-on: ubuntu-24.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .tool-versions
           cache: npm
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
