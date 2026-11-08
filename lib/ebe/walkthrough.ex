@@ -14,6 +14,10 @@ defmodule Ebe.Walkthrough do
       (to show an error on purpose).
 
   Everything else is prose.
+
+  A walkthrough registered with `guide: true` in the catalog is a *guide*: its
+  `sh` blocks are shown but never run (they need Docker, a cluster, a cloud
+  account), so its page shows no output and says so.
   """
 
   defmodule Block do
@@ -94,8 +98,12 @@ defmodule Ebe.Walkthrough do
   Checks that the walkthrough shows every project file exactly once and only
   files that exist. Returns `:ok` or `{:error, message}`.
   """
-  @spec check([Block.t()], [String.t()]) :: :ok | {:error, String.t()}
-  def check(blocks, files) do
+  @spec check([Block.t()], [String.t()], boolean()) :: :ok | {:error, String.t()}
+  def check(blocks, files, guide? \\ false) do
+    with :ok <- check_files(blocks, files), do: check_commands(blocks, guide?)
+  end
+
+  defp check_files(blocks, files) do
     shown = for %Block{kind: :file, path: path} <- blocks, do: path
 
     cond do
@@ -108,8 +116,18 @@ defmodule Ebe.Walkthrough do
       (dupes = shown -- Enum.uniq(shown)) != [] ->
         {:error, "shows twice: #{inspect(dupes)}"}
 
-      not Enum.any?(blocks, &(&1.kind == :sh)) ->
+      true ->
+        :ok
+    end
+  end
+
+  defp check_commands(blocks, guide?) do
+    cond do
+      not guide? and not Enum.any?(blocks, &(&1.kind == :sh)) ->
         {:error, "has no ```sh block"}
+
+      guide? and Enum.any?(blocks, & &1.fails) ->
+        {:error, "is a guide: nothing runs, so nothing can be marked `fails`"}
 
       true ->
         :ok

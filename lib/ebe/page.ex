@@ -76,7 +76,7 @@ defmodule Ebe.WalkthroughPage do
               kind: :sh,
               script: String.t(),
               html: String.t(),
-              output: String.t(),
+              output: String.t() | nil,
               fails: boolean()
             }
 

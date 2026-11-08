@@ -226,6 +226,12 @@ defmodule Ebe.Catalog do
     end
   end
 
+  for t <- tracks, {slug, _, _, opts} <- t.examples ++ t.steps, Keyword.get(opts, :guide) do
+    unless opts[:format] == :walkthrough do
+      raise CompileError, description: "#{slug}: only walkthrough directories can be guides"
+    end
+  end
+
   for t <- tracks, {slug, _, _, opts} <- t.examples, Keyword.has_key?(opts, :args) do
     args = Keyword.fetch!(opts, :args)
 
@@ -305,6 +311,7 @@ defmodule Ebe.Catalog do
       uses: Keyword.get(opts, :uses, []),
       no_run: Keyword.get(opts, :no_run),
       format: Keyword.get(opts, :format, :script),
+      guide: Keyword.get(opts, :guide, false),
       args: Keyword.get(opts, :args, [])
     }
   end

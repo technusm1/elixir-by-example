@@ -313,6 +313,7 @@ defmodule Ebe.Pages do
           <span :if={@page.entry.kind == :step}>
             › <a href={@track.intro.url}><span class="tag">Project</span> {@track.project_title}</a>
           </span>
+          <span :if={@page.entry.guide}> › <span class="tag">Guide</span></span>
         </nav>
         <h1>{@page.entry.title}</h1>
         <p :if={@page.uses != []} class="uses">
@@ -321,7 +322,13 @@ defmodule Ebe.Pages do
 
         <div class="notebook">
           <div class="nb-bar">
-            <span class="nb-hint">Every command ran when the site was built; the output is real</span>
+            <span :if={!@page.entry.guide} class="nb-hint">
+              Every command ran when the site was built; the output is real
+            </span>
+            <span :if={@page.entry.guide} class="nb-hint">
+              <span class="tag">Guide</span>
+              Not run when the site is built: it needs tools the build doesn't have
+            </span>
             <span class="nb-status"></span>
             <a
               class="btn"
@@ -379,7 +386,7 @@ defmodule Ebe.Pages do
       <div class="cell-body">
         <.copy_button what="commands" />
         <pre class="code sh"><code>{Phoenix.HTML.raw(@block.html)}</code></pre>
-        <div class="out-area">
+        <div :if={@block.output} class="out-area">
           <.copy_button what="output" />
           <pre class={["cell-out", @block.fails && "failed", @block.output == "" && "quiet"]}><code>{@block.output}</code></pre>
         </div>

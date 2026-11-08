@@ -16,7 +16,8 @@ defmodule Ebe.Catalog.Entry do
     uses: [],
     no_run: nil,
     args: [],
-    format: :script
+    format: :script,
+    guide: false
   ]
 
   @type kind :: :example | :step | :intro
@@ -32,7 +33,8 @@ defmodule Ebe.Catalog.Entry do
           uses: [String.t()],
           no_run: String.t() | nil,
           args: [String.t()],
-          format: format()
+          format: format(),
+          guide: boolean()
         }
 end
 

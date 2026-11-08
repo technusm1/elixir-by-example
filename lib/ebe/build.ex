@@ -173,12 +173,21 @@ defmodule Ebe.Build do
 
   # A walkthrough's sh blocks run once, in a fresh copy of its project; the
   # list of block outputs is cached by the content of every file.
+  # A guide's commands are never run: every sh block gets `nil` output.
+  defp cached_run(%Entry{format: :walkthrough, guide: true, source_path: dir}) do
+    blocks = dir |> Path.join(Walkthrough.walkthrough()) |> File.read!() |> Walkthrough.parse()
+
+    with :ok <- check_walkthrough(dir, blocks, Walkthrough.files(dir), true) do
+      {:ok, for(%{kind: :sh} <- blocks, do: nil)}
+    end
+  end
+
   defp cached_run(%Entry{format: :walkthrough, source_path: dir}) do
     text = File.read!(Path.join(dir, Walkthrough.walkthrough()))
     blocks = Walkthrough.parse(text)
     files = Walkthrough.files(dir)
 
-    with :ok <- check_walkthrough(dir, blocks, files) do
+    with :ok <- check_walkthrough(dir, blocks, files, false) do
       contents = for rel <- files, do: [rel, 0, File.read!(Path.join(dir, rel)), 0]
 
       key =
@@ -225,8 +234,8 @@ defmodule Ebe.Build do
     end
   end
 
-  defp check_walkthrough(dir, blocks, files) do
-    case Walkthrough.check(blocks, files) do
+  defp check_walkthrough(dir, blocks, files, guide?) do
+    case Walkthrough.check(blocks, files, guide?) do
       :ok ->
         :ok
 
@@ -258,7 +267,7 @@ defmodule Ebe.Build do
              kind: :sh,
              script: block.text,
              html: sh_html(block.text),
-             output: String.trim_trailing(out),
+             output: out && String.trim_trailing(out),
              fails: block.fails
            }, outs}
       end)
@@ -392,6 +401,9 @@ defmodule Ebe.Build do
           lang = if Path.extname(path) in [".ex", ".exs"], do: "elixir", else: ""
           "`#{path}`:\n\n```#{lang}\n#{code}\n```"
 
+        %{kind: :sh, script: script, output: nil} ->
+          "```sh\n#{script}\n```"
+
         %{kind: :sh, script: script, output: "", fails: false} ->
           "```sh\n#{script}\n```\n\n(No output.)"
 
@@ -400,10 +412,16 @@ defmodule Ebe.Build do
           "```sh\n#{script}\n```\n\nOutput#{note}:\n\n```\n#{output}\n```"
       end)
 
-    "# #{entry.title}\n\n" <>
-      "Every command below was run when the site was built, on Elixir " <>
-      "#{System.version()} / OTP #{System.otp_release()}; the output is real.\n\n" <>
-      body <> "\n"
+    note =
+      if entry.guide,
+        do:
+          "This is a guide: its commands were *not* run when the site was built " <>
+            "(they need tools the build doesn't have), so no output is shown.",
+        else:
+          "Every command below was run when the site was built, on Elixir " <>
+            "#{System.version()} / OTP #{System.otp_release()}; the output is real."
+
+    "# #{entry.title}\n\n#{note}\n\n" <> body <> "\n"
   end
 
   defp zip(slug, files, readme) do
