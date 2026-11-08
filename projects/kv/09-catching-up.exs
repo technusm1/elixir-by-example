@@ -33,10 +33,13 @@ founders = [node(), a, b]
 # takes the node to copy from (`nil` for a founding
 # replica). It joins the group in `init/1`, then catches
 # up in `handle_continue/2`, which runs before the
-# replica handles any message. Writes that arrive while
-# the snapshot is on its way wait in the mailbox and are
-# applied after it, so the snapshot can't overwrite
-# them.
+# replica handles any message. It asks
+# `{__MODULE__, source}`, the replica registered under
+# that name on the source node, as on the
+# [Leases](/distributed/leases) page. Writes that arrive
+# while the snapshot is on its way wait in the mailbox
+# and are applied after it, so the snapshot can't
+# overwrite them.
 {:module, KV, bytecode, _} =
   defmodule KV do
     use GenServer
